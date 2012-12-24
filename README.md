@@ -1,4 +1,5 @@
-some-cms
+Some CMS
 ========
 
-Some CMS: a web content management system for Node.js
+A web content management system for Node.js
+
