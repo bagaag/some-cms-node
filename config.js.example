@@ -1,0 +1,10 @@
+module.exports = {
+    "db": {
+        "mongodb": "mongodb://someuser:somepassword@some-server.somehost.com:10087/some-db",
+        "database": "some-db",
+        "server:": "linus.mongohq.com:10087"
+    },
+    "server": {
+        "port": 3000
+    }
+};
