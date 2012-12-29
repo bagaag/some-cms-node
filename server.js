@@ -1,32 +1,31 @@
-// database connection
+// database connection 
 var config = require('./config.js');
 var mongoose = require('mongoose');
 mongoose.connect(config.db.mongodb);
 
-// module dependencies
+// global module dependencies
 var express = require('express');
-var routes = require('./routes.js');
-var models = require('./models')({mongoose: mongoose});
 var cons = require('consolidate');
-var controllers = require('./controllers')({mongoose: mongoose});
 var app = module.exports = express();
 
 // configure templates & views
+//TOOD: remove mustache as global dependency
 app.engine('html', cons.mustache);
 app.set('view engine', 'html');
-app.set('views', __dirname + '/views');
 
 // middleware 
 //app.use(express.bodyParser()); // parse form posts
 //app.use(express.methodOverride()); // allows put/get/post overrides
 //app.use(express.router); // enables app.get, app.post, etc.
-app.use(express.static(__dirname + '/public'));
+//app.use(express.cookieDecoder());
+//TODO: use connect-mongodb for cross-server sessions
+//app.use(express.session());
 
-// routes
-routes.setup({
-  'controllers': controllers,
-  'app': app
- });
+// load up some CMS
+var some = require('./some')({ 'express':express, 'app':app, 'mongoose':mongoose, 'config':config.some });
+
+// load parent site
+var site = require('./site')({'app':app, 'mongoose':mongoose, 'express':express, 'some':some });
 
 // configure error handling
 if (app.get('env')=='development') {
