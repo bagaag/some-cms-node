@@ -1,11 +1,8 @@
 /* Some CMS app setup */
 function somecms(params) {
     var app = params.app;
-    var mongoose = params.mongoose;
     var express = params.express;
-
-    var models = require('./models')({'mongoose': mongoose});
-    
+    params.db = require('./lib/db');
     var controllers = require('./controllers.js')(params);
     
     var routes = require('./routes.js');

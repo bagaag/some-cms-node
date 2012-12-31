@@ -1,17 +1,14 @@
-// database connection 
-var config = require('./config.js');
-var mongoose = require('mongoose');
-mongoose.connect(config.db.mongodb);
-
 // global module dependencies
+var config = require('./config.js');
 var express = require('express');
 var cons = require('consolidate');
 var app = module.exports = express();
 
 // configure templates & views
-//TOOD: remove mustache as global dependency
 app.engine('html', cons.mustache);
 app.set('view engine', 'html');
+app.use("views", __dirname + '/views');
+app.use("/static", express.static(__dirname + '/public'));
 
 // middleware 
 //app.use(express.bodyParser()); // parse form posts
@@ -22,10 +19,13 @@ app.set('view engine', 'html');
 //app.use(express.session());
 
 // load up some CMS
-var some = require('./some')({ 'express':express, 'app':app, 'mongoose':mongoose, 'config':config.some });
+require('./some')({ 'express':express, 'app':app, 'config':config.some });
 
-// load parent site
-var site = require('./site')({'app':app, 'mongoose':mongoose, 'express':express, 'some':some });
+// an external route
+app.get('/', function (req, res) {
+    var viewdata = { 'test' : 'Testing a Mustache variable.'};
+    res.render('index', viewdata);
+});
 
 // configure error handling
 if (app.get('env')=='development') {
