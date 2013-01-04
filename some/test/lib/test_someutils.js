@@ -1,6 +1,7 @@
 var assert = require("assert");
 suite('lib/someutils.js', function() {
-    test('#format()', function() {
+    
+    test('#format()', function(done) {
         var app = {'settings':{'env':'development'}};
         var d = {'id':'12345'};
         var res = {'setHeader':function(){}, 'send':function(data){
@@ -10,5 +11,6 @@ suite('lib/someutils.js', function() {
         }};
         var util = require('../../lib/someutils.js');
         util.format(app, res, d);
+        done();
     });
 });

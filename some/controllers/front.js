@@ -6,8 +6,10 @@ function FrontController(params) {
     
     /** Display a page based on the requested path */
     this.display = function(req, res, next) {
+        var self = this;
         var path = req.path;
-        var viewdata = {};
+        // middleware can provide data to views via request.locals
+        var viewdata = req.locals || {};
         var partials = [];    
         //TODO: implement some kind of exclusion mechanism to make this more efficient and to keep pages from being created at certain paths        
         if (path.indexOf('/some')===0 || path.indexOf('/favicon.ico')===0) {
@@ -32,7 +34,6 @@ function FrontController(params) {
             , 'footer': {'_id':'3','title':'Footer','body':'Copyright 2013', 'partial':'footer'} 
         };
         for (var name in locations) {
-            console.log(name);
             var p = locations[name];
             p.location = name;
             if (p.partial) partials.push(p);
@@ -45,15 +46,14 @@ function FrontController(params) {
             res.render(page.layout, viewdata);
         } 
         // wait for all partials to be rendering before rendering layout
-        var parallel = new someutils.Parallel(partials.length, 3000, render_layout);        
+        this.parallel = new someutils.Parallel(partials.length, render_layout);
         // generate an event handler for each pg in the loop below
         var partial_render_handler = function(pg) {
             return function(err, rendered) {
                 if (err) throw err;
                 pg.rendered = rendered;
-                console.log([pg.location,rendered]);
                 if (pg._id == page._id) viewdata.body = rendered;
-                parallel.done(pg.location);
+                self.parallel.done(pg.location);
             }
         }
         for (var i=0; i<partials.length; i++) {

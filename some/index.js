@@ -3,7 +3,8 @@ function somecms(params) {
     var app = params.app;
     var express = params.express;
     params.db = require('./lib/db');
-    var controllers = require('./controllers.js')(params);
+    var Controllers = require('./controllers.js');
+    var controllers = new Controllers(params);
     
     var routes = require('./routes.js');
     routes.setup({

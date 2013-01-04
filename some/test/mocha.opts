@@ -1,2 +1,4 @@
 -u tdd
 --recursive
+--bail
+--async-only

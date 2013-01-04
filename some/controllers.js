@@ -4,15 +4,21 @@ function Controllers(params) {
     params.utils = someutils;
 
     // define API controllers
-    //TODO: support custom API controllers as modules
-    var controllers = {
+    var controllers = {};
+    var ControllerClasses = {
         'page': require('./controllers/page')
        ,'test': require('./controllers/test')
     };
     
+    // add custom controllers
+    var custom_api_controllers = params.custom_api_controllers;
+    for (var name in custom_api_controllers) {
+        ControllerClasses[name] = custom_api_controllers[name];
+    }
+    
     // instantiate API controllers
-    for (var name in controllers) {
-        controllers[name] = new controllers[name](params);
+    for (name in ControllerClasses) {
+        controllers[name] = new ControllerClasses[name](params);
     }
     
     // front-end request controller
@@ -20,7 +26,7 @@ function Controllers(params) {
     var front_controller = new FrontController(params);
 
     // direct /some/:section/:action to the approriate controller and method 
-    Controllers.route_api = function(req, res, next) {
+    this.route_api = function(req, res, next) {
         var section = req.params.section;
         var action = req.params.action;
         if (!action) action = 'index';
@@ -38,10 +44,9 @@ function Controllers(params) {
     };
     
     // front-end content requests
-    Controllers.front = function(req, res, next) {
+    this.front = function(req, res, next) {
         front_controller.display(req, res, next);        
     };
     
-    return Controllers;
 }
 module.exports = Controllers;
