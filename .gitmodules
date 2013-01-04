@@ -1,0 +1,3 @@
+[submodule "/var/lib/stickshift/1737499a094546e7a54f573c10b7a8cd/app-root/data/362354/some/public/charisma"]
+	path = /var/lib/stickshift/1737499a094546e7a54f573c10b7a8cd/app-root/data/362354/some/public/charisma
+	url = git@github.com:wiseley/charisma.git
