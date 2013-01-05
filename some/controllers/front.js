@@ -2,8 +2,6 @@ var someutils = require('../lib/someutils.js');
 
 function FrontController(params) {
 
-    var pageAPI = new require('../lib/api_page.js')(params);
-    
     /** Display a page based on the requested path */
     this.display = function(req, res, next) {
         var self = this;
