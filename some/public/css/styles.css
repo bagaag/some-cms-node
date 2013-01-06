@@ -1,0 +1,12 @@
+/*
+** Colors
+*/
+/*
+** Global Admin UI 
+*/
+/* Left Navigation Menu */
+.nav-header {
+  background-color: #dddddd;
+  color: #000000;
+  cursor: pointer;
+}
