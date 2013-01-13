@@ -8,16 +8,14 @@ var app = app || {};
 
 	var Workspace = Backbone.Router.extend({
 		routes:{
-			'pages.html': 'testRoute'
+			'/apidoc': 'apidoc'
+		 ,'': 'dashboard'
+     ,'/dashboard': 'dashboard'
 		},
 
-		testRoute: function() {
-            $("#pages").append("<p>Hey now.</p>");
-			//app.Pages.trigger('list');
-		}
 	});
-
-	app.SomeRouter = new Workspace();
-	Backbone.history.start();
-
+  app.Router = new Workspace();
+  app.Router.on('route:apidoc', function(){alert('1');});
+  app.Router.on('route:dashboard', function(){alert('2');});
+  Backbone.history.start();
 }());

@@ -9,8 +9,6 @@ $(function( $ ) {
 	app.AppView = Backbone.View.extend({
 
         initialize: function() {
-          $.Mustache.options.warnOnMissingTemplates = true;
-	        app.NavbarView = new app.NavbarView();
         },
 
     });

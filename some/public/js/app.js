@@ -3,6 +3,10 @@ var app = app || {};
 
 $(function() {
 
-	new app.AppView();
+  $.Mustache.options.warnOnMissingTemplates = true;
+
+  app.NavbarView = new app.NavbarView();
+	app.SidebarView = new app.SidebarView();
+	app.DashboardView = new app.DashboardView();
 
 });

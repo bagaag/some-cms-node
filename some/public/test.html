@@ -26,44 +26,31 @@
         <link rel="shortcut icon" href="/some/bootstrap/favicon.png">        
     </head>
     <body id="app">
-    
-        <div id="navbar"></div>
-    
-        <div class="container-fluid">
-          <div id="main" class="row-fluid">
-          
-            <div id="sidebar"></div>
-            
-            <div class="span9">
-              <div id="content"></div>
-            </div><!--/span-->
-          </div><!--/row-->
-    
-          <hr>
-    
-          <footer>
-            <p>&copy; Some CMS 2013</p>
-          </footer>
+      
+      <div id="div1"></div>
+      <div id="div2"></div>
 
-        </div><!--/.fluid-container-->
+      <a href="#div1">div1</a>
+      <br/>
+      <a href="#div2">div2</a>
     
-        <!-- Placed at the end of the document so the pages load faster -->
-        <script src="/some/js/lib/jquery-min.js"></script>
-        <script src="/some/js/lib/json2.js"></script>
-        <script src="/some/js/lib/mustache.js"></script>
-        <!--<script src="/some/js/lib/jquery-Mustache.js"></script>-->
-        <script src="/some/js/lib/underscore-min.js"></script>
-        <script src="/some/bootstrap/js/bootstrap.min.js"></script>
-        <script src="/some/js/lib/backbone.js"></script>
-        <script src="/some/js/lib/backbone.marionette.min.js"></script>
-        <script src="/some/js/lib/MustacheWrapper.js"></script>
-        <script src="/some/js/main.js"></script>
-        <!--
-        <script src="/some/js/views/navbar.js"></script>
-        <script src="/some/js/views/sidebar.js"></script>
-        <script src="/some/js/views/dashboard.js"></script>
-        <script src="/some/js/routers/router.js"></script>
-        <script src="/some/js/app.js"></script>
-        -->
+      <!-- Placed at the end of the document so the pages load faster -->
+      <script src="/some/js/lib/jquery-min.js"></script>
+      <script src="/some/js/lib/json2.js"></script>
+      <script src="/some/js/lib/underscore-min.js"></script>
+      <script src="/some/bootstrap/js/bootstrap.min.js"></script>
+      <script src="/some/js/lib/backbone.js"></script>
+      <script>
+      var AppRouter = Backbone.Router.extend({
+        routes: {
+          "div1": "div1",
+          "div2": "div2"  
+        }
+      }); 
+      var app_router = new AppRouter;
+      app_router.on('route:div1', function() { $("#div1").text('Boop!'); $("#div2").text('____'); });
+      app_router.on('route:div2', function() { $("#div2").text('Boop!'); $("#div1").text('____'); });
+      Backbone.history.start();
+      </script>
     </body>
 </html>
