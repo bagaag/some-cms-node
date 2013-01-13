@@ -1,4 +1,3 @@
-
 /* Provides template file management, file caching and rendering **/
 function MustacheWrapper(params) {
   /* Template file name convention: everthing before first "-" is file name.
@@ -18,37 +17,39 @@ function MustacheWrapper(params) {
     return TEMPLATE_DIR + name + TEMPLATE_EXT;
   }
 
-  function get_template(name, cb) {
+  this.get_template = function(name) {
     var template;
     if (template = template_cache[name]) {
-      cb(template);
-      return;
+      return template;
     }
     var file = get_filename(name);
     var file_content;
-    $.get(file, function(data) {
-      data = '<div>'+data+'</div>'; // wrap top-level templates for selection
-      var templates = $(data).find(TEMPLATE_SELECTOR)
-      $(templates).each(function(ix,item) {
-        var i = $(item);
-        template_cache[i.attr('id')] = i.html();
-      })
-      if (template = template_cache[name]) {
-        cb(template);
-        return;
-      } 
-      else throw 'Failed to locate template ' + name;
+    var result;
+    $.ajax({
+      url: file,
+      async: false,
+      success: function(data) {
+        data = '<div>'+data+'</div>'; // wrap top-level templates for selection
+        var templates = $(data).find(TEMPLATE_SELECTOR)
+        $(templates).each(function(ix,item) {
+          var i = $(item);
+          template_cache[i.attr('id')] = i.html();
+        })
+        if (template = template_cache[name]) {
+          result = template;
+        } 
+        else throw 'Failed to locate template ' + name;
+      }
     });
+    return result;
   }
 
   this.clear_cache = function() { template_cache = {}; };
 
-  this.render = function(name, data, target, cb) {
-    get_template(name, function(template){
-      var result = Mustache.render(template, data);
-      if (target) $(target).html(result);
-      if (typeof cb === 'function') cb(result);
-    });
+  this.render = function(name, data, target) {
+    var template = this.get_template(name);
+    var result = Mustache.render(template, data);
+    if (target) $(target).html(result);
   }
 };
 

@@ -1,26 +1,58 @@
 var Some = Some || new Backbone.Marionette.Application();
 
 Some.module("Dashboard", function(){
+
+  // Define views
+  var FooterView = Backbone.Marionette.ItemView.extend({
+    template: "footer"
+  });
+  var NavbarView = Backbone.Marionette.ItemView.extend({
+    template: "navbar"
+  });
+  var SidebarView = Backbone.Marionette.ItemView.extend({
+    template: "sidebar"
+  });
+  var DashboardView = Backbone.Marionette.ItemView.extend({
+    template: "dashboard"
+  });
+  var ApiDocView = Backbone.Marionette.ItemView.extend({
+    template: "apidoc"
+  });
+
+
   this.ControllerClass = Marionette.Controller.extend({
 
     initialize: function(options){
-      //this.stuff = options.stuff;
+      // instantiate views
+      this.views = {
+        'navbar': new NavbarView(),
+        'sidebar': new SidebarView(),
+        'dashboard': new DashboardView(),
+        'apidoc': new ApiDocView(),
+        'footer': new FooterView()
+      };
+      // define regions
+      Some.addRegions({
+        footerRegion: '#footer',
+        sidebarRegion: '#sidebar',
+        navbarRegion: '#navbar',
+        contentRegion: '#content'
+      });
     },
 
     show: function() {
-      Some.Renderer.render('sidebar', {}, '#sidebar');
-      Some.Renderer.render('navbar', {}, '#navbar');
-      Some.Renderer.render('dashboard', {}, '#content');
+      Some.navbarRegion.show(this.views.navbar); 
+      Some.sidebarRegion.show(this.views.sidebar); 
+      Some.footerRegion.show(this.views.footer); 
+      Some.contentRegion.show(this.views.dashboard); 
     },
 
     apidoc: function(){
-      //this.trigger("dashboard:changed", this.stuff);
-      Some.Renderer.render('apidoc', {}, '#content');
+      Some.contentRegion.show(this.views.apidoc); 
     },
 
     dashboard: function(){
-      //this.trigger("dashboard:changed", this.stuff);
-      Some.Renderer.render('dashboard', {}, '#content');
+      Some.contentRegion.show(this.views.dashboard); 
     }
 
   });
