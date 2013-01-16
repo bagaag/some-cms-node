@@ -4,19 +4,19 @@ var express = require('express');
 var cons = require('consolidate');
 var app = module.exports = express();
 
-// configure templates & views
-app.engine('html', cons.mustache);
-app.set('view engine', 'html');
-app.use("views", __dirname + '/views');
-app.use("/static", express.static(__dirname + '/public'));
-
 // middleware 
-//app.use(express.bodyParser()); // parse form posts
+app.use(express.bodyParser()); // parse form posts
 //app.use(express.methodOverride()); // allows put/get/post overrides
 //app.use(express.router); // enables app.get, app.post, etc.
 //app.use(express.cookieDecoder());
 //TODO: use connect-mongodb for cross-server sessions
 //app.use(express.session());
+
+// configure templates & views
+app.engine('html', cons.mustache);
+app.set('view engine', 'html');
+app.use("views", __dirname + '/views');
+app.use("/static", express.static(__dirname + '/public'));
 
 // load up some CMS
 require('./some')({ 'express':express, 'app':app, 'config':config.some });

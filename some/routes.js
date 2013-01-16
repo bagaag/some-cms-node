@@ -7,9 +7,9 @@ exports.setup = function(params) {
     app.get('*', controllers.front);
 
     // API routes
-    app.get(api_root + '/:section', controllers.route_api);
-    app.get(api_root + '/:section/:action', controllers.route_api);
-    app.get(api_root + '/:section/:action/:param', controllers.route_api);
+    app.all(api_root + '/:section', controllers.route_api);
+    app.all(api_root + '/:section/:action', controllers.route_api);
+    app.all(api_root + '/:section/:action/:id', controllers.route_api);
     
 
 };

@@ -1,15 +1,15 @@
 function models(params) {
-    var mongoose = params.mongoose;	
+  var mongoose = params.mongoose;	
 	
-    var	Schema = mongoose.Schema;
-    
+  var	Schema = mongoose.Schema;
+   
 	/* Schema Definition */	
-    var Page = new Schema({
-        title : { type: String }
-      , body : { type: String }
-    });
+  var Page = new Schema({
+      title : { type: String }
+    , body : { type: String }
+  }, {"collection": "some_pages"});
     
-    mongoose.model('Pages', Page);
-    module.exports = models;
+  mongoose.model('Page', Page);
+  module.exports = models;
 };
 module.exports = models;

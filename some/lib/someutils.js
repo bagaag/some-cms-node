@@ -10,6 +10,15 @@ exports.format = function(app, res, data) {
     }
 };
 
+exports.error = function(e) {
+  if (typeof e === 'string') {
+    return {"error":{"message":e }};
+  } else if (typeof e === 'object') {
+    return {"error":{"message":e.message, "stack":e.stack}};
+  } 
+  else return 'Unknown error';
+}
+
 // wait for parallel tasks to be completed before a callback
 //TODO: Unit test for someutils.Parallel
 exports.Parallel = function(taskcount, callback) {

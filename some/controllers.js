@@ -32,11 +32,11 @@ function Controllers(params) {
         if (!action) action = 'index';
         var controller = controllers[section];
         if (typeof controller == 'undefined') {
-            res.send("Unmapped API section '" + section + "'", 404);
+            res.send(404, someutils.error("Unmapped API section '" + section + "'"));
             return;
         }
         if (typeof controller[action]=='undefined') {
-            res.send("Unmapped API action: '" + section + '/' + action + "'", 404);
+            res.send(404, someutils.error("Unmapped API action: '" + section + '/' + action + "'"));
             return;
         } else {
             controller[action](req, res, next);

@@ -3,7 +3,7 @@ var Some = Some || new Backbone.Marionette.Application();
 // Configure custom template loading, compiling and rendering
 Some.addInitializer(function(options) {
   // loading
-  Some.TemplateLoader = new SomeTemplateLoader({dir:'/some/templates/', selector:'>div'});
+  Some.TemplateLoader = new SomeTemplateLoader({dir:'templates/', selector:'>div'});
   Backbone.Marionette.TemplateCache.prototype.loadTemplate = function(name) {
     var template = Some.TemplateLoader.get_template(name);
     return template;
