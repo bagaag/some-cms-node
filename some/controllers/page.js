@@ -5,7 +5,7 @@ function PageController(params) {
   var app = params.app;
   var PageAPI = require('../lib/api_page.js');
   var pageAPI = new PageAPI(params);
-  
+
   // REST router 
   // TODO: turn REST router into a utility function
   this.rest = function(req, res) {
@@ -24,6 +24,7 @@ function PageController(params) {
     else if (method==='DELETE' && id) {
       this.destroy(req, res);
     }
+    else res.send(404);
   };
   
   // Get a single page 

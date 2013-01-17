@@ -40,7 +40,7 @@ function PageAPI(params) {
     this.update = function(p, callback) {
       self.get(p._id, function(err, page) {
         if (err) callback(err);
-        else if (page==null) callback(new Error('Page not found'));
+        else if (page==null) callback('Page not found');
         else {
           self.update_from_obj(page, p);
           page.save(callback);
