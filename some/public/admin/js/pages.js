@@ -11,8 +11,8 @@ Some.module("Pages", function(){
 
     defaults: {
       title: '',
-      body: ''`:
-    }
+      body: ''
+    },
 
     exists: function() {
       return typeof this.get('_id')!='undefined' && this.get('_id').length>0;
@@ -20,6 +20,8 @@ Some.module("Pages", function(){
   });
 
   this.Collection = Backbone.Collection.extend({
+    url: "/some/api/page/rest",
+    model: this.Model
   });
 
 });

@@ -12,25 +12,17 @@ Some.module("Dashboard", function(){
   var SidebarView = Backbone.Marionette.ItemView.extend({
     template: "sidebar"
   });
-  var DashboardView = Backbone.Marionette.ItemView.extend({
-    template: "dashboard"
-  });
   var ApiDocView = Backbone.Marionette.ItemView.extend({
     template: "apidoc"
   });
+  var DashboardView = Backbone.Marionette.ItemView.extend({
+    template: "dashboard"
+  });
 
-
+  // Define controller class
   this.ControllerClass = Marionette.Controller.extend({
 
     initialize: function(options){
-      // instantiate views
-      this.views = {
-        'navbar': new NavbarView(),
-        'sidebar': new SidebarView(),
-        'dashboard': new DashboardView(),
-        'apidoc': new ApiDocView(),
-        'footer': new FooterView()
-      };
       // define regions
       Some.addRegions({
         footerRegion: '#footer',
@@ -41,10 +33,9 @@ Some.module("Dashboard", function(){
     },
 
     show: function() {
-      Some.navbarRegion.show(this.views.navbar); 
-      Some.sidebarRegion.show(this.views.sidebar); 
-      Some.footerRegion.show(this.views.footer); 
-      Some.contentRegion.show(this.views.dashboard); 
+      Some.footerRegion.show(new FooterView()); 
+      Some.navbarRegion.show(new NavbarView()); 
+      Some.sidebarRegion.show(new SidebarView()); 
     },
 
     apidoc: function(){
@@ -52,9 +43,13 @@ Some.module("Dashboard", function(){
     },
 
     dashboard: function(){
-      Some.contentRegion.show(this.views.dashboard); 
+      var c = new Some.Pages.Collection();
+      c.fetch({'success': function(col, res, opt) {
+        var view = new DashboardView({collection: col});
+        Some.contentRegion.show(view); 
+      }});
     }
-
+    
   });
 
   this.RouterClass = Backbone.Marionette.AppRouter.extend({

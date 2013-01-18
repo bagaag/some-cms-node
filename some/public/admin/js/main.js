@@ -24,6 +24,7 @@ Some.addInitializer(function(options) {
 Some.addInitializer(function(options) {
   Some.Dashboard.Controller.show();
   Backbone.history.start();
+  Some.Dashboard.Router.navigate("dashboard",{trigger: true});
 });
 
 // Start the app
