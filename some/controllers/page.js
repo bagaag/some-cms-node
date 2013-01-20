@@ -68,7 +68,7 @@ function PageController(params) {
   // Delete a page
   this.destroy = function(req, res) {
     pageAPI.destroy(req.param('id'), function(err) {
-      if (err) res.send(500, utils.error(err));
+      if (err) res.send(500, err);
       else res.send(204);
     });
   };

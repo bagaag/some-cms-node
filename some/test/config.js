@@ -1,6 +1,6 @@
 module.exports = {
     http : {
-        'hostname': 'http://some-cms.wiseley.c9.io',
+        'hostname': 'http://dev.somecms.com',
         'port': 80,
         'headers': {}
     }

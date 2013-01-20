@@ -40,4 +40,24 @@ suite('controllers.js', function() {
         }
         controllers.route_api(req, res);
     });
+
+    test('api_controller_404_section', function(done) {
+        var req = {'params':{'section':'custom2', 'action':'hello'}}, res = {};
+        res.send = function(status, err) {            
+          assert.equal(status,'404','404 status');
+          assert.ok(err.error.message.indexOf('Unmapped')===0, 'error message');
+          done();
+        }
+        controllers.route_api(req, res);
+    });
+
+    test('api_controller_404_action', function(done) {
+        var req = {'params':{'section':'custom1', 'action':'hellox'}}, res = {};
+        res.send = function(status, err) {            
+            assert.equal(status,'404','404 status');
+            assert.ok(err.error.message.indexOf('Unmapped')===0, 'error message');
+            done();
+        }
+        controllers.route_api(req, res);
+    });
 });
