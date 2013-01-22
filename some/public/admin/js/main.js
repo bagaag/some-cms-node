@@ -22,9 +22,9 @@ Some.addInitializer(function(options) {
 
 // Initialize the app
 Some.addInitializer(function(options) {
-  Some.Dashboard.Controller.show();
   Backbone.history.start();
   if (options.navigate) {
+    Some.Dashboard.Controller.navbar().sidebar().footer();
     Some.Dashboard.Router.navigate(options.navigate, {trigger: true});
   }
 });

@@ -32,15 +32,24 @@ Some.module("Dashboard", function(){
       });
     },
 
-    show: function() {
-      Some.footerRegion.show(new FooterView()); 
-      Some.navbarRegion.show(new NavbarView()); 
+    sidebar: function() {
       Some.sidebarRegion.show(new SidebarView()); 
+      return this;
     },
 
+    footer: function() {
+      Some.footerRegion.show(new FooterView()); 
+      return this;
+    },
+
+    navbar: function() {
+      Some.navbarRegion.show(new NavbarView()); 
+      return this;
+    },
+    
     apidoc: function(){
       Some.contentRegion.show(new ApiDocView()); 
-      Some.vent.trigger("#apidoc.rendered");
+      return this;
     },
 
     dashboard: function(){
@@ -50,6 +59,7 @@ Some.module("Dashboard", function(){
         Some.contentRegion.show(view); 
         Some.vent.trigger("#dashboard.rendered");
       }});
+      return this;
     }
     
   });
