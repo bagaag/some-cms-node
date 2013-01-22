@@ -39,7 +39,8 @@ Some.module("Dashboard", function(){
     },
 
     apidoc: function(){
-      Some.contentRegion.show(this.views.apidoc); 
+      Some.contentRegion.show(new ApiDocView()); 
+      Some.vent.trigger("#apidoc.rendered");
     },
 
     dashboard: function(){
@@ -47,6 +48,7 @@ Some.module("Dashboard", function(){
       c.fetch({'success': function(col, res, opt) {
         var view = new DashboardView({collection: col});
         Some.contentRegion.show(view); 
+        Some.vent.trigger("#dashboard.rendered");
       }});
     }
     

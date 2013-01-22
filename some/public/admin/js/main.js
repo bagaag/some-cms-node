@@ -3,7 +3,7 @@ var Some = Some || new Backbone.Marionette.Application();
 // Configure custom template loading, compiling and rendering
 Some.addInitializer(function(options) {
   // loading
-  Some.TemplateLoader = new SomeTemplateLoader({dir:'templates/', selector:'>div'});
+  Some.TemplateLoader = new SomeTemplateLoader({dir: options.templates, selector: '>div'});
   Backbone.Marionette.TemplateCache.prototype.loadTemplate = function(name) {
     var template = Some.TemplateLoader.get_template(name);
     return template;
@@ -24,12 +24,9 @@ Some.addInitializer(function(options) {
 Some.addInitializer(function(options) {
   Some.Dashboard.Controller.show();
   Backbone.history.start();
-  Some.Dashboard.Router.navigate("dashboard",{trigger: true});
-});
-
-// Start the app
-$(document).ready(function(){
-  Some.start({});
+  if (options.navigate) {
+    Some.Dashboard.Router.navigate(options.navigate, {trigger: true});
+  }
 });
 
 
