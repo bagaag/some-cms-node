@@ -17,12 +17,19 @@
   <script src="../bootstrap/js/bootstrap.min.js"></script>
   <script src="../js/lib/backbone.js"></script>
   <script src="../js/lib/backbone.marionette.min.js"></script>
-  <script src="../js/lib/SomeTemplateLoader.js"></script>
+  <script src="../js/lib/some-template-loader.js"></script>
   <script src="../js/dashboard.js"></script>
   <script src="../js/pages.js"></script>
   <script src="../js/main.js"></script>
-  
+
   <script src="qunit.js"></script>
+  <script>
+    Some.start({"templates": "../templates/"});
+    var container = $( "#qunit-fixture" );
+  </script>
+
   <script src="test_dashboard.js"></script>
+  <script src="test_edit.js"></script>
+
 </body>
 </html>

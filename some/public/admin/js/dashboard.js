@@ -1,5 +1,6 @@
 var Some = Some || new Backbone.Marionette.Application();
 
+
 Some.module("Dashboard", function(){
 
   // Define views
@@ -19,6 +20,9 @@ Some.module("Dashboard", function(){
     template: "dashboard"
   });
 
+  this.SidebarModel = Backbone.Model.extend({
+  });
+
   // Define controller class
   this.ControllerClass = Marionette.Controller.extend({
 
@@ -33,7 +37,14 @@ Some.module("Dashboard", function(){
     },
 
     sidebar: function() {
-      Some.sidebarRegion.show(new SidebarView()); 
+      var model = new Some.Dashboard.SidebarModel();
+      var c = new Some.Pages.Collection();
+      c.fetch({'success': function(col, res, opt) {
+        model.set('contentTreePages', col.toJSON());
+        var view = new SidebarView({model: model});
+        Some.sidebarRegion.show(view); 
+        Some.vent.trigger("sidebar.rendered");
+      }});
       return this;
     },
 
@@ -67,7 +78,9 @@ Some.module("Dashboard", function(){
   this.RouterClass = Backbone.Marionette.AppRouter.extend({
     appRoutes: {
       'dashboard': 'dashboard',
-      'apidoc': 'apidoc'
+      '/dashboard': 'dashboard',
+      'apidoc': 'apidoc',
+      '/apidoc': 'apidoc'
     },
   });
 

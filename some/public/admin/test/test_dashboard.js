@@ -1,6 +1,3 @@
-QUnit.config.reorder = false;
-
-Some.start({"templates": "../templates/"});
 var container = $( "#qunit-fixture" );
 
 // expect +1

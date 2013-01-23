@@ -6,7 +6,11 @@
         <li class="nav-header" data-toggle="collapse" data-target="#contentnav">Content</li>
       </ul>
       <div class="nav nav-list collapse in" id="contentnav">
-          Content tree goes here.
+        <ul>
+        {{#contentTreePages}}
+          <li><a href="#/edit/{{_id}}">{{title}}</a></li>
+        {{/contentTreePages}}  
+        </ul>
       </div>
       <ul class="nav nav-list">
         <li class="nav-header" data-toggle="collapse" data-target="#filesnav">Files</li>
@@ -18,9 +22,8 @@
         <li class="nav-header" data-toggle="collapse" data-target="#settingsnav">Settings</li>
       </ul>
       <ul class="nav nav-list collapse out" id="settingsnav">
-        <li><a href="#dashboard">Dashboard</a></li>
-        <li><a href="#apidoc">API Documentation</a></li>
-        <li><a href="page3">Link</a></li>
+        <li><a href="#/dashboard">Dashboard</a></li>
+        <li><a href="#/apidoc">API Documentation</a></li>
       </ul>
     </div><!--/.well -->
   </div><!--/span-->
