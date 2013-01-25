@@ -37,15 +37,49 @@ Some.module("Dashboard", function(){
     },
 
     sidebar: function() {
-      var model = new Some.Dashboard.SidebarModel();
-      var c = new Some.Pages.Collection();
-      c.fetch({'success': function(col, res, opt) {
-        model.set('contentTreePages', col.toJSON());
-        var view = new SidebarView({model: model});
-        Some.sidebarRegion.show(view); 
-        Some.vent.trigger("sidebar.rendered");
-      }});
+      Some.sidebarRegion.show(new SidebarView()); 
+      Some.Dashboard.Controller.content_jstree();
       return this;
+    },
+
+    // converts an array of page objects to an array of jstree node data
+    page_to_treenode: function(pages) {
+      var a = [];
+      for (var i=0; i<pages.length; i++) {
+        var page = pages[i];
+        a.push({
+          data: page.title,
+          attr: { nodeid: page._id },
+          state: 'closed'
+        });
+      }
+      return a;
+    },
+
+    // sets up the jstree for managing pages
+    content_jstree: function() {
+      jQuery("#contentnav")
+        .jstree({
+          core: {},
+          plugins: [ "themes", "json_data" ],
+          json_data: {
+            ajax: {
+              data: function(node) {
+                var ret;
+                if (node===-1) ret = {};
+                else ret = { "parent": $(node).attr('nodeid') };
+                return ret;
+              },
+              url: function(node) {
+                return '/some/api/page/rest'
+              },
+              success: function(data) {
+                var ret = Some.Dashboard.Controller.page_to_treenode(data);
+                return ret;
+              }
+            }
+          }
+        });
     },
 
     footer: function() {
