@@ -4,19 +4,14 @@ Some.module("Pages", function(){
 
   this.Model = Backbone.Model.extend({
 
-    initialize: function() {
-    },
-    
+    urlRoot: "/some/api/page/rest",
     idAttribute: "_id",
 
     defaults: {
       title: '',
       body: ''
-    },
-
-    exists: function() {
-      return typeof this.get('_id')!='undefined' && this.get('_id').length>0;
     }
+
   });
 
   this.Collection = Backbone.Collection.extend({

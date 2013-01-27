@@ -2,6 +2,9 @@ var Some = Some || new Backbone.Marionette.Application();
 
 Some.module("Editor", function(){
 
+  this.EditorModel = Backbone.Model.extend({
+  });
+
   // Define views
   var EditorView = Backbone.Marionette.ItemView.extend({
     template: "editor"
@@ -10,10 +13,13 @@ Some.module("Editor", function(){
   // Define controller class
   this.ControllerClass = Marionette.Controller.extend({
 
-    initialize: function(options){
-    },
-
-    editPage: function(){
+    // load a page up for editing and render the editor view
+    editPage: function(id){
+      var page = new Some.Pages.Model({"_id": id});
+      page.fetch({'success': function(pmod, res, opt) {
+        var model = new Some.Editor.EditorModel({"page": pmod.toJSON()});
+        Some.contentRegion.show(new EditorView({"model": model})); 
+      }});
       return this;
     }
     
@@ -21,8 +27,9 @@ Some.module("Editor", function(){
 
   this.RouterClass = Backbone.Marionette.AppRouter.extend({
     appRoutes: {
-      '/edit/[id]': 'editPage'
-    },
+      'edit': 'editPage',
+      'edit/:id': 'editPage'
+    }
   });
 
   Some.addInitializer(function(options) {

@@ -20,8 +20,6 @@ Some.module("Dashboard", function(){
     template: "dashboard"
   });
 
-  this.SidebarModel = Backbone.Model.extend({
-  });
 
   // Define controller class
   this.ControllerClass = Marionette.Controller.extend({
@@ -38,48 +36,8 @@ Some.module("Dashboard", function(){
 
     sidebar: function() {
       Some.sidebarRegion.show(new SidebarView()); 
-      Some.Dashboard.Controller.content_jstree();
+      Some.ContentTree.content_jstree();
       return this;
-    },
-
-    // converts an array of page objects to an array of jstree node data
-    page_to_treenode: function(pages) {
-      var a = [];
-      for (var i=0; i<pages.length; i++) {
-        var page = pages[i];
-        a.push({
-          data: page.title,
-          attr: { nodeid: page._id },
-          state: 'closed'
-        });
-      }
-      return a;
-    },
-
-    // sets up the jstree for managing pages
-    content_jstree: function() {
-      jQuery("#contentnav")
-        .jstree({
-          core: {},
-          plugins: [ "themes", "json_data" ],
-          json_data: {
-            ajax: {
-              data: function(node) {
-                var ret;
-                if (node===-1) ret = {};
-                else ret = { "parent": $(node).attr('nodeid') };
-                return ret;
-              },
-              url: function(node) {
-                return '/some/api/page/rest'
-              },
-              success: function(data) {
-                var ret = Some.Dashboard.Controller.page_to_treenode(data);
-                return ret;
-              }
-            }
-          }
-        });
     },
 
     footer: function() {
@@ -112,9 +70,7 @@ Some.module("Dashboard", function(){
   this.RouterClass = Backbone.Marionette.AppRouter.extend({
     appRoutes: {
       'dashboard': 'dashboard',
-      '/dashboard': 'dashboard',
-      'apidoc': 'apidoc',
-      '/apidoc': 'apidoc'
+      'apidoc': 'apidoc'
     },
   });
 

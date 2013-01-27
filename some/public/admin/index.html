@@ -56,13 +56,14 @@
         <script src="js/lib/backbone.marionette.min.js"></script>
         <script src="js/lib/some-template-loader.js"></script>
         <script src="js/pages.js"></script>
+        <script src="js/content_tree.js"></script>
         <script src="js/dashboard.js"></script>
         <script src="js/editor.js"></script>
         <script src="js/main.js"></script>
         <script>
           // Start the app
           $(document).ready(function(){
-            Some.start({"templates": "templates/", "navigate": "/dashboard"});
+            Some.start({"templates": "templates/", "navigate": "#/dashboard"});
           });
         </script>
     </body>
