@@ -1,5 +1,13 @@
 <div id="editor">
-  <p>Edit document {{page._id}} here.</p>
-  <h2>{{page.title}}</h2>
-  <div>{{page.body}}</div>
+  <form id="page-content-form">
+    <fieldset>
+      <legend>Editing document ID {{page._id}}</legend>
+      <input type="hidden" name="page_id" value="{{page._id}}"/>
+      <label for="page-title">Title</label>
+      <input name="title" id="page-title" type="text" value="{{page.title}}" class="full-width"/>
+      <label for="page-body">Body</label>
+      <textarea name="body" id="page-body" class="full-width">{{{page.body}}}</textarea>
+      <p><button id="page-content-submit" class="btn">Save</button></p>
+    </fieldset>
+  </form>
 </div>

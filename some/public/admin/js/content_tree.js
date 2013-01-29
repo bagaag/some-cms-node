@@ -1,6 +1,5 @@
 var Some = Some || new Backbone.Marionette.Application();
 
-
 Some.module("ContentTree", function(){
 
   this.selector = "#content_tree";
@@ -24,6 +23,10 @@ Some.module("ContentTree", function(){
   this.content_jstree = function() {
     var $selector = $(self.selector);
     $selector
+      // event on load
+      .bind("loaded.jstree", function(event,data) {
+        Some.vent.trigger('content_tree.loaded');
+      })
       // navigate to edit
       .bind("select_node.jstree", function(event, data) {
         var node = $selector.jstree("get_selected");

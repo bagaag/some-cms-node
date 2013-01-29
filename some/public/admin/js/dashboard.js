@@ -32,21 +32,27 @@ Some.module("Dashboard", function(){
         navbarRegion: '#navbar',
         contentRegion: '#content'
       });
+      this.footerView = new FooterView();
+      this.sidebarView = new SidebarView();
+      this.navbarView = new NavbarView();
     },
-
+    
     sidebar: function() {
-      Some.sidebarRegion.show(new SidebarView()); 
+      Some.sidebarRegion.show(this.sidebarView); 
       Some.ContentTree.content_jstree();
+      this.sidebarView.shown = true;
       return this;
     },
 
     footer: function() {
-      Some.footerRegion.show(new FooterView()); 
+      Some.footerRegion.show(this.footerView); 
+      this.footerView.shown = true;
       return this;
     },
 
     navbar: function() {
-      Some.navbarRegion.show(new NavbarView()); 
+      Some.navbarRegion.show(this.navbarView); 
+      this.navbarView.shown = true;
       return this;
     },
     
@@ -55,7 +61,15 @@ Some.module("Dashboard", function(){
       return this;
     },
 
+    init: function() {
+      if (!this.navbarView.shown) this.navbar();
+      if (!this.sidebarView.shown) this.sidebar();
+      if (!this.footerView.shown) this.footer();
+    },
+
     dashboard: function(){
+      this.init();
+      // load the dashboard
       var c = new Some.Pages.Collection();
       c.fetch({'success': function(col, res, opt) {
         var view = new DashboardView({collection: col});
@@ -69,6 +83,7 @@ Some.module("Dashboard", function(){
 
   this.RouterClass = Backbone.Marionette.AppRouter.extend({
     appRoutes: {
+      '': 'dashboard',
       'dashboard': 'dashboard',
       'apidoc': 'apidoc'
     },

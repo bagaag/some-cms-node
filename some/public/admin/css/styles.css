@@ -18,3 +18,7 @@
 #content_tree a.active {
   background-color: #eee;
 }
+/* Forms */
+form .full-width {
+  width: 90%;
+}

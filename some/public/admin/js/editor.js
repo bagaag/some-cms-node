@@ -7,7 +7,17 @@ Some.module("Editor", function(){
 
   // Define views
   var EditorView = Backbone.Marionette.ItemView.extend({
-    template: "editor"
+    template: "editor",
+    onDomRefresh: function() {
+      // http://www.tinymce.com/tryit/jquery_plugin.php
+      //TODO: include CSS, configure buttons, etc.
+      $("#page-body").tinymce({
+        script_url : '/some/admin/js/lib/tiny_mce/tiny_mce.js',
+        theme : 'advanced'
+      });
+    },
+    close: function() {
+    }
   });
 
   // Define controller class
@@ -15,6 +25,7 @@ Some.module("Editor", function(){
 
     // load a page up for editing and render the editor view
     editPage: function(id){
+      Some.Dashboard.Controller.init();
       var page = new Some.Pages.Model({"_id": id});
       page.fetch({'success': function(pmod, res, opt) {
         var model = new Some.Editor.EditorModel({"page": pmod.toJSON()});
