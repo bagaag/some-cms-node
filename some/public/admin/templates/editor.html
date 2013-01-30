@@ -1,4 +1,10 @@
 <div id="editor">
+<!--TODO: i18n -->
+  <div id="page-content-error" class="alert alert-error hide">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    <h4>Ruh-roh.</h4>
+    <span>Error goes here.</span>
+  </div>
   <form id="page-content-form">
     <fieldset>
       <legend>Editing document ID {{page._id}}</legend>
@@ -7,7 +13,10 @@
       <input name="title" id="page-title" type="text" value="{{page.title}}" class="full-width"/>
       <label for="page-body">Body</label>
       <textarea name="body" id="page-body" class="full-width">{{{page.body}}}</textarea>
-      <p><button id="page-content-submit" class="btn">Save</button></p>
+      <div>
+        <button id="page-content-submit" class="btn">Save</button>
+        <span class="label label-success hide" id="page-content-saved"></span>
+      </div>
     </fieldset>
   </form>
 </div>
