@@ -2,8 +2,21 @@ var Some = Some || new Backbone.Marionette.Application();
 
 Some.module("ContentTree", function(){
 
-  this.selector = "#content_tree";
+  this.selector = "#content_tree_control";
   var self = this;
+
+  // menu above the tree control
+  this.MenuView = Backbone.Marionette.ItemView.extend({
+    template: "content_tree_menu",
+    events: {
+      'click #new_page_btn': 'new_page'
+    },
+    templateHelpers: Some.i18n.templateHelpers([
+      'one', 'two'
+    ]),
+    new_page: function() { alert('hey now'); }
+  });
+
 
   // converts an array of page objects to an array of jstree node data
   this.page_to_treenode = function(pages) {
@@ -19,6 +32,7 @@ Some.module("ContentTree", function(){
     return a;
   };
 
+  //TODO: Convert this into a .render method on a TreeControl view
   // sets up the jstree for managing pages
   this.content_jstree = function() {
     var $selector = $(self.selector);

@@ -30,16 +30,20 @@ Some.module("Dashboard", function(){
         footerRegion: '#footer',
         sidebarRegion: '#sidebar',
         navbarRegion: '#navbar',
-        contentRegion: '#content'
+        contentRegion: '#content',
+        contentTreeMenuRegion: '#content_tree_menu'
       });
       this.footerView = new FooterView();
       this.sidebarView = new SidebarView();
       this.navbarView = new NavbarView();
+      this.contentTreeMenuView = new Some.ContentTree.MenuView();
     },
     
     sidebar: function() {
       Some.sidebarRegion.show(this.sidebarView); 
+      //TODO: refactor, too much content tree detail for the dashboard module
       Some.ContentTree.content_jstree();
+      Some.contentTreeMenuRegion.show(this.contentTreeMenuView);
       this.sidebarView.shown = true;
       return this;
     },

@@ -20,13 +20,14 @@ Some.addInitializer(function(options) {
   }
 });
 
+Some.options = {
+  "root" : "/some/admin/"
+}
+
 // Initialize the app
 Some.addInitializer(function(options) {
   Backbone.history.start();
-  if (options.navigate) {
-    Some.Dashboard.Controller.navbar().sidebar().footer();
-    Some.Dashboard.Router.navigate(options.navigate, {trigger: true});
-  }
+  jQuery.extend(Some.options, options);
 });
 
 
