@@ -5,8 +5,9 @@ Some.module("i18n", function(){
   //TODO: farm out to resource files
   this.dictionaries = {
     'en_us': {
+      'contenttree_menu_new': 'New',
+      'contenttree_menu_page': 'Page',
       'editor_saved': "Success!",
-      'editor_lbl_title': "Title",
       'editor_lbl_save': 'Save',
       'editor_err_head': "Ruh-roh.",
       'editor_head' : "Editing Document %1$s"
