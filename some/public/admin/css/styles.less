@@ -18,9 +18,30 @@
 #contentnav { overflow: auto; max-height: 600px; }
 
 /* Content Tree */
+//TODO: move some of this to jsTree theme?
+
+#content_tree_control {
+  padding: 6px 0;
+}
 
 #content_tree a.active {
   background-color: #eee;
+}
+
+#content_tree_menu {
+  margin-bottom: 0px;
+
+  .navbar-inner {
+    padding-left: 0px;
+    padding-right: 0px;
+    min-height: 36px;
+  }
+  li {
+    line-height: 14px;
+  }
+  .caret {
+    margin-top: 6px;
+  }
 }
 
 /* Forms */

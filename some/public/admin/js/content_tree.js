@@ -32,7 +32,8 @@ Some.module("ContentTree", function(){
     // draw the tree (after render)
     draw_tree: function() {
       var self = this;
-      $("#content_tree_control")
+      var $selector = $("#content_tree_control");
+      $selector
         // event on load
         .bind("loaded.jstree", function(event,data) {
           Some.vent.trigger('content_tree.loaded');

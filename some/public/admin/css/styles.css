@@ -18,8 +18,25 @@
   max-height: 600px;
 }
 /* Content Tree */
+#content_tree_control {
+  padding: 6px 0;
+}
 #content_tree a.active {
   background-color: #eee;
+}
+#content_tree_menu {
+  margin-bottom: 0px;
+}
+#content_tree_menu .navbar-inner {
+  padding-left: 0px;
+  padding-right: 0px;
+  min-height: 36px;
+}
+#content_tree_menu li {
+  line-height: 14px;
+}
+#content_tree_menu .caret {
+  margin-top: 6px;
 }
 /* Forms */
 form .full-width {
