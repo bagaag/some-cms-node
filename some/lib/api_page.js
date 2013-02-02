@@ -25,7 +25,7 @@ function PageAPI(params) {
     // Create a page 
     this.create = function(p, callback) {
       if (!p.title || p.title==='') {
-        callback('missing required field: title');
+        callback(new Error('missing required field: title'));
         return;
       }
       var page = new Page();
@@ -40,7 +40,7 @@ function PageAPI(params) {
     this.update = function(p, callback) {
       self.get(p._id, function(err, page) {
         if (err) callback(err);
-        else if (page==null) callback('Page not found');
+        else if (page==null) callback(new Error('Page not found'));
         else {
           self.update_from_obj(page, p);
           page.save(callback);

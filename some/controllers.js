@@ -6,8 +6,9 @@ function Controllers(params) {
     // define API controllers
     var controllers = {};
     var ControllerClasses = {
-        'page': require('./controllers/page')
-       ,'test': require('./controllers/test')
+        'page': require('./controllers/page'),
+        'node': require('./controllers/node'),
+        'test': require('./controllers/test')
     };
     
     // add custom controllers

@@ -1,57 +1,59 @@
-function PageController(params) {
+function NodeController(params) {
 
   var self = this;
   var utils = params.utils;
   var app = params.app;
-  var PageAPI = require('../lib/api_page.js');
-  var pageAPI = new PageAPI(params);
+  var NodeAPI = require('../lib/api_node.js');
+  var nodeAPI = new NodeAPI(params);
 
   // REST router 
+  // TODO: turn REST router into a utility function
+
   this.rest = function(req, res) {
     utils.rest_handler(req, res, this);
   };
   
-  // Get a single page 
+  // Get a single node 
   this.get = function(req, res) {
     var id = req.param('id');
-    pageAPI.get(id, function(err, page) {
+    nodeAPI.get(id, function(err, node) {
       if (err) res.send(500, err);
-      else utils.format(app, res, page);
+      else utils.format(app, res, node);
     });
   };
 
-  // List pages 
+  // List nodes 
   this.list = function(req, res) {
-    pageAPI.list(req.body, function(err, pages) {
+    nodeAPI.list(req.body, function(err, nodes) {
       if (err) res.send(500, err);
-      else res.send(pages);
+      else res.send(nodes);
     });
   };
 
-  // Create a page
+  // Create a node
   this.create = function(req, res) {
-    pageAPI.create(req.body, function(err, page) {
+    nodeAPI.create(req.body, function(err, node) {
       if (err) res.send(500, err);
       else {
-        res.set('Location', (req.secure?'https':'http')+'://'+req.host+'/some/api/page/rest/'+page.id);
+        res.set('Location', (req.secure?'https':'http')+'://'+req.host+'/some/api/node/rest/'+node.id);
         res.send(201);
       }
     });
   };
 
-  // Update a page
+  // Update a node
   this.update = function(req, res) {
     var body = req.body;
     body._id = req.param('id');
-    pageAPI.update(req.body, function(err) {
+    nodeAPI.update(req.body, function(err) {
       if (err) res.send(500, err);
       else res.send(204);
     });
   };
 
-  // Delete a page
+  // Delete a node
   this.destroy = function(req, res) {
-    pageAPI.destroy(req.param('id'), function(err) {
+    nodeAPI.destroy(req.param('id'), function(err) {
       if (err) res.send(500, err);
       else res.send(204);
     });
@@ -59,7 +61,7 @@ function PageController(params) {
 
 }
 
-module.exports = PageController;
+module.exports = NodeController;
 
 
 

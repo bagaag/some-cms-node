@@ -32,3 +32,24 @@ exports.Parallel = function(taskcount, callback) {
         }
     };
 };
+
+// maps rest calls to appropriate controller methods
+exports.rest_handler = function(req, res, controller) {
+  var method = req.method;
+  var id = req.param('id');
+  if (method==='GET') {
+    if (id) controller.get(req, res);
+    else controller.list(req, res);
+  }
+  else if (method==='POST') {
+    controller.create(req, res);
+  }
+  else if (method==='PUT' && id) {
+    controller.update(req, res);
+  }
+  else if (method==='DELETE' && id) {
+    controller.destroy(req, res);
+  }
+  else res.send(404);
+};
+
