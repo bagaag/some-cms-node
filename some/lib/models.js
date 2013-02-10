@@ -13,6 +13,7 @@ function models(params) {
 
   var Node = new Schema({
       root: { type: Boolean },
+      label: [ { type: String} ],
       children: [ { type: Schema.ObjectId } ],
       target_id: { type: Schema.ObjectId },
       target_type: { type: String }

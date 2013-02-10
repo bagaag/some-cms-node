@@ -20,6 +20,7 @@ suite('Node API:', function() {
 
     test('#create()', function(done) {
       var p = {'children': [new_id("510b2dd586381c018b803feb")],
+               'label': 'test label', 
                'target_id': new_id("510b2dd586381c018b803feb"),
                'target_type': 'some_nodes'};
       nodeAPI.create(p, function(err, node) {
@@ -27,14 +28,14 @@ suite('Node API:', function() {
         assert.ok(node.get('id'), 'No ID on created object');
         assert.ok(node.get('id').length>0, 'ID on created object has 0 length');
         assert.deepEqual(node.get('children')[0], p.children[0], 'Children persisted');
-        assert.deepEqual(node.get('target_id'), p.target_id, 'Target_id persisted');
+        assert.ok(node.get('label')==p.label, 'label persisted');
         assert.ok(node.get('target_type') == p.target_type, 'Target_type persisted');
         results.created = node;
         done();
       });
     });
     
-    test('#list()', function(done) {
+    test('#list() root', function(done) {
         nodeAPI.list({}, function(err, nodes) {
             if (err) throw err;
             assert(nodes.length>0, 'returned >0 nodes');
@@ -42,14 +43,40 @@ suite('Node API:', function() {
             for (var i=0; i<nodes.length; i++) {
                 var node = nodes[i];
                 should.exist(node._id, 'has field _id');
+                should.exist(node.label, 'has field label');
+                should.exist(node.root, 'has field root');
+                assert.ok(node.root===true, 'root should be true');
                 should.exist(node.children, 'has field children');
+                should.exist(node.children.length, 'children is an array');
                 should.exist(node.target_id, 'has field target_id');
                 should.exist(node.target_type, 'has field target_type');
+                if (node.children.length>0) results.node_with_children = node;
             }
+            should.exist(results.node_with_children, 'at least one root node with children');
             done();
         });
     });
 
+    test('#list() children', function(done) {
+      var children = results.node_with_children.children;
+      nodeAPI.list({_id:children}, function(err, nodes) {
+          if (err) throw err;
+          results.children = nodes;
+          assert(nodes.length>0, 'returned >0 nodes');
+          assert(nodes.length==children.length, 'expected number of children');
+          for (var i=0; i<nodes.length; i++) {
+              var node = nodes[i];
+              should.exist(node._id, 'has field _id');
+              should.exist(node.label, 'has field label');
+              should.exist(node.root, 'has field root');
+              should.exist(node.children, 'has field children');
+              should.exist(node.children.length, 'children is an array');
+              should.exist(node.target_id, 'has field target_id');
+              should.exist(node.target_type, 'has field target_type');
+          }
+          done();
+      });
+    });
     test('GET /some/api/node/rest', function(done) {
         client.path('/some/api/node/rest');
         client.get()(function(err, resp, body) {
@@ -58,6 +85,34 @@ suite('Node API:', function() {
             var data = JSON.parse(body);
             assert.ok(data.length>0, 'data.length > 0');
             assert.deepEqual(JSON.stringify(data), JSON.stringify(results.list), 'web service matches API result')
+            done();
+        });
+    });
+
+    test('GET /some/api/node/rest?_id=[single]', function(done) {
+        client.path('/some/api/node/rest?_id='+results.children[0]._id);
+        client.get()(function(err, resp, body) {
+            if (err) throw err;
+            assert.equal(resp.statusCode,200, 'Status 200');
+            var data = JSON.parse(body);
+            assert.equal(data.length,1, 'data.length == 1');
+            assert.deepEqual(JSON.stringify(data), JSON.stringify([results.children[0]]), 'web service matches first API result');
+            done();
+        });
+    });
+
+    test('GET /some/api/node/rest?_id=[array]', function(done) {
+        var _ids = '?xignore=0';
+        for (var i=0; i<results.children.length; i++) {
+          _ids = _ids + '&_id='+results.children[i]._id;
+        }
+        client.path('/some/api/node/rest'+_ids);
+        client.get()(function(err, resp, body) {
+            if (err) throw err;
+            assert.ok(resp.statusCode==200, 'Status 200');
+            var data = JSON.parse(body);
+            assert.ok(data.length==results.children.length, 'data.length matches API result');
+            assert.deepEqual(JSON.stringify(data), JSON.stringify(results.children), 'web service matches API result')
             done();
         });
     });
@@ -76,6 +131,7 @@ suite('Node API:', function() {
         testp('id');
         testp('children', true);
         testp('target_id', true);
+        testp('label',true);
         testp('target_type', true);
         done();
       });
@@ -107,6 +163,7 @@ suite('Node API:', function() {
     test('POST /some/api/node/rest', function(done) {
         client.path('/some/api/node/rest');
         var p = {'children': [new_id("510b2dd586381c018b803feb")],
+                'label': 'test label',
                 'target_id': new_id("510b2dd586381c018b803feb"),
                 'target_type': 'some_nodes'};
         client.post(JSON.stringify(p))(function(err, resp, body) {
@@ -126,6 +183,7 @@ suite('Node API:', function() {
           assert.ok(resp.statusCode==200, 'Status 200');
           var data = JSON.parse(body);
           should.exist(data._id, 'result has ._id');
+          should.exist(data.label, 'result has .label');
           should.exist(data.children, 'result has .children');
           should.exist(data.target_id, 'result has .target_id');
           should.exist(data.target_type, 'result has .target_type');

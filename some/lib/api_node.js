@@ -22,7 +22,6 @@ function NodeAPI(params) {
       if (typeof opts == 'undefined' || typeof opts._id == 'undefined') {
         query.root = true;
       }
-      console.log(query);
       Node.find(query, function(err, nodes) {
         callback(err, nodes);
       });
