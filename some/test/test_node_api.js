@@ -18,6 +18,22 @@ suite('Node API:', function() {
     var NodeAPI = require('../lib/api_node.js');
     var nodeAPI = new NodeAPI({'db':db});
 
+    test('#create()', function(done) {
+      var p = {'children': [new_id("510b2dd586381c018b803feb")],
+               'target_id': new_id("510b2dd586381c018b803feb"),
+               'target_type': 'some_nodes'};
+      nodeAPI.create(p, function(err, node) {
+        if(err) throw err;
+        assert.ok(node.get('id'), 'No ID on created object');
+        assert.ok(node.get('id').length>0, 'ID on created object has 0 length');
+        assert.deepEqual(node.get('children')[0], p.children[0], 'Children persisted');
+        assert.deepEqual(node.get('target_id'), p.target_id, 'Target_id persisted');
+        assert.ok(node.get('target_type') == p.target_type, 'Target_type persisted');
+        results.created = node;
+        done();
+      });
+    });
+    
     test('#list()', function(done) {
         nodeAPI.list({}, function(err, nodes) {
             if (err) throw err;
@@ -46,22 +62,6 @@ suite('Node API:', function() {
         });
     });
 
-    test('#create()', function(done) {
-      var p = {'children': [new_id("510b2dd586381c018b803feb")],
-               'target_id': new_id("510b2dd586381c018b803feb"),
-               'target_type': 'some_nodes'};
-      nodeAPI.create(p, function(err, node) {
-        if(err) throw err;
-        assert.ok(node.get('id'), 'No ID on created object');
-        assert.ok(node.get('id').length>0, 'ID on created object has 0 length');
-        assert.deepEqual(node.get('children')[0], p.children[0], 'Children persisted');
-        assert.deepEqual(node.get('target_id'), p.target_id, 'Target_id persisted');
-        assert.ok(node.get('target_type') == p.target_type, 'Target_type persisted');
-        results.created = node;
-        done();
-      });
-    });
-    
     test('#get()', function(done) {
       nodeAPI.get(results.created.get('id'), function(err, node) {
         if(err) throw err;

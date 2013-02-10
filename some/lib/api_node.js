@@ -9,15 +9,28 @@ function NodeAPI(params) {
       Node.findById(id, callback);
     };
 
-    // List nodes
+    // List nodes - returns nodes matching array of _id vals, 
+    // or root nodes if no _id array is given
     this.list = function(opts, callback) {
-        Node.find({}, function(err, nodes) {
-            callback(err, nodes);
-        });
+      var query = {};
+      // convert opts._id array into _id $in query
+      if (opts && opts._id) {
+        if (typeof opts._id == 'string') opts._id = [ opts._id ];
+        query._id = {"$in": opts._id};
+      }
+      // or get root if _id array not found
+      if (typeof opts == 'undefined' || typeof opts._id == 'undefined') {
+        query.root = true;
+      }
+      console.log(query);
+      Node.find(query, function(err, nodes) {
+        callback(err, nodes);
+      });
     };
 
     // Set node properties
     this.update_from_obj = function(model, obj) {
+      model.set('label', obj.label);
       model.set('children', obj.children);
       model.set('target_type', obj.target_type);
       model.set('target_id', obj.target_id);
@@ -31,6 +44,10 @@ function NodeAPI(params) {
       }
       if (!n.target_id || n.target_id==='') {
         callback(new Error('missing required field: target_id'));
+        return;
+      }
+      if (!n.label || n.label==='') {
+        callback(new Error('missing required field: label'));
         return;
       }
       var node = new Node();

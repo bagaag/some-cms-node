@@ -16,14 +16,14 @@ Some.module("ContentTree", function(){
     onDomRefresh: function() {
       this.draw_tree();
     },
-    // converts an array of page objects to an array of jstree node data
-    page_to_treenode: function(pages) {
+    // converts an array of node objects to an array of jstree node data
+    node_to_treenode: function(nodes) {
       var a = [];
-      for (var i=0; i<pages.length; i++) {
-        var page = pages[i];
+      for (var i=0; i<nodes.length; i++) {
+        var node = nodes[i];
         a.push({
-          data: page.title,
-          attr: { nodeid: page._id },
+          data: node.label,
+          attr: node,
           state: 'closed'
         });
       }
@@ -41,7 +41,7 @@ Some.module("ContentTree", function(){
         // navigate to edit
         .bind("select_node.jstree", function(event, data) {
           var node = $selector.jstree("get_selected");
-          Some.Dashboard.Router.navigate("#/edit/"+node.attr('nodeid'),true);
+          Some.Dashboard.Router.navigate("#/edit/"+node.attr('target_id'),true);
         })
         // configure the tree control
         .jstree({
@@ -49,17 +49,17 @@ Some.module("ContentTree", function(){
           plugins: [ "themes", "json_data", "ui" ],
           json_data: {
             ajax: {
-              data: function(node) {
-                var ret;
-                if (node===-1) ret = {};
-                else ret = { "parent": $(node).attr('nodeid') };
-                return ret;
-              },
               url: function(node) {
-                return '/some/api/page/rest'
+                return '/some/api/node/rest';
+              },
+              data: function(node) {
+                var id = '';
+                if (node!=-1) {
+                 return { _id: node.attr('children').split(',')}; 
+                }
               },
               success: function(data) {
-                var ret = self.page_to_treenode(data);
+                var ret = self.node_to_treenode(data);
                 return ret;
               }
             }
@@ -77,7 +77,6 @@ Some.module("ContentTree", function(){
       //return false;
     }
   });
-
 
 });
 

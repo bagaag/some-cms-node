@@ -12,13 +12,12 @@ function models(params) {
 
 
   var Node = new Schema({
-      children: [{ type: Schema.ObjectId, ref: 'some_nodes' }],
-      target_type: { type: String },
-      target_id: { type: Schema.ObjectId }
+      root: { type: Boolean },
+      children: [ { type: Schema.ObjectId } ],
+      target_id: { type: Schema.ObjectId },
+      target_type: { type: String }
   }, {"collection": "some_nodes"});
   mongoose.model('Node', Node);
 
-
-  module.exports = models;
 };
 module.exports = models;

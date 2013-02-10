@@ -1,3 +1,5 @@
+require("url");
+
 function NodeController(params) {
 
   var self = this;
@@ -24,7 +26,7 @@ function NodeController(params) {
 
   // List nodes 
   this.list = function(req, res) {
-    nodeAPI.list(req.body, function(err, nodes) {
+    nodeAPI.list(req.query, function(err, nodes) {
       if (err) res.send(500, err);
       else res.send(nodes);
     });
