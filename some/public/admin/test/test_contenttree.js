@@ -11,12 +11,15 @@ module( "content tree module" ,{
   }
 );
 
-test( "page_to_treenode", 1, function() {
-  var start = [{'_id': '123', 'title': 'Title 1', 'body': 'Body 1'},
-               {'_id': '456', 'title': 'Title 2', 'body': 'Body 2'}];
-  var finit = [{'attr': { 'nodeid': '123'}, 'data': 'Title 1', 'state': 'closed'},
-               {'attr': { 'nodeid': '456'}, 'data': 'Title 2', 'state': 'closed'}];
-  var result = Some.ContentTree.page_to_treenode(start);
+test( "ContentTree.page_to_treenode", 1, function() {
+  var start = [{'_id': '123', 'label': 'Title 1', 'target_id': 'abc', 'target_type': 'some_pages'},
+               {'_id': '456', 'label': 'Title 2', 'target_id': 'def', 'target_type': 'some_pages'}];
+  var finit = [{"data":"Title 1","attr":{"_id":"123","label":"Title 1","target_id":"abc","target_type":"some_pages"},
+                    "state":"closed"},
+               {"data":"Title 2","attr":{"_id":"456","label":"Title 2","target_id":"def","target_type":"some_pages"},
+                    "state":"closed"}];
+  var view = new Some.ContentTree.View();
+  var result = view.node_to_treenode(start);
   deepEqual(finit, result, 'Result is as expected');
 });
 
@@ -25,6 +28,7 @@ asyncTest( "content_tree", 1, function() {
     ok(true, 'loaded event triggered');
     start();
   });
-  Some.ContentTree.content_jstree();
+  var view = new Some.ContentTree.View();
+  view.draw_tree();
 });
 
