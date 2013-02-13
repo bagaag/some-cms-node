@@ -15,8 +15,18 @@ function NodeAPI(params) {
       var query = {};
       // convert opts._id array into _id $in query
       if (opts && opts._id) {
-        if (typeof opts._id == 'string') opts._id = [ opts._id ];
-        query._id = {"$in": opts._id};
+        if (typeof opts._id == 'string') opts._id = [ new db.Types.ObjectId(opts._id) ];
+        /* 
+        if (opts._id.length>0) {
+          // convert string IDs to ObjectIds
+          for (var i=0; i<opts._id.length; i++) {
+            if (typeof opts._id[i] == 'string') { 
+              opts._id[i] = new db.Types.ObjectId(opts._id[i]);
+            }
+          }
+        }
+        */
+        query._id = { "$in": opts._id };
       }
       // or get root if _id array not found
       if (typeof opts == 'undefined' || typeof opts._id == 'undefined') {
@@ -33,27 +43,44 @@ function NodeAPI(params) {
       model.set('children', obj.children);
       model.set('target_type', obj.target_type);
       model.set('target_id', obj.target_id);
+      if (!obj.parent_id) model.set('root', true);
+      else model.set('root', false);
     };
 
     // Create a node
     this.create = function(n, callback) {
       if (!n.target_type || n.target_type==='') {
-        callback(new Error('missing required field: target_type'));
+        callback(new Error('Missing required field: target_type'));
         return;
       }
       if (!n.target_id || n.target_id==='') {
-        callback(new Error('missing required field: target_id'));
+        callback(new Error('Missing required field: target_id'));
         return;
       }
       if (!n.label || n.label==='') {
-        callback(new Error('missing required field: label'));
+        callback(new Error('Missing required field: label'));
         return;
       }
       var node = new Node();
       self.update_from_obj(node, n);
       node.save(function(err){
         if (err) callback(err);
-        else callback(undefined, node);
+        else {
+          // if a parent is specified, add the new node as a child
+          if (n.parent_id) {
+            self.add_child(n.parent_id, node.get('_id'), function(err) {
+              if (err) {
+                // parent doesn't exist, undo the create
+                node.remove();
+                callback(new Error('Failed to create child relationship: ' + err.message));
+              } else {
+                callback(undefined, node);
+              }
+            });
+          } else {
+            callback(undefined, node);
+          }
+        }
       });
     };
 
@@ -71,13 +98,26 @@ function NodeAPI(params) {
 
     // Destroy a node 
     this.destroy = function(id, callback) {
-      self.get(id, function(err, node) {
+      // remove any child references
+      var query = { children: id }; 
+      var update = { $pull: { children: id } };
+      Node.update(query, update, function(err) {
         if (err) callback(err);
-        else if (node==null) callback(new Error('Node not found'));
         else {
-          node.remove(callback);
+          // remove the node
+          query = { _id: id };
+          Node.remove(query, function(err) {
+            callback(err);
+          });
         }
       });
+    };
+
+    // Create a relationship
+    this.add_child = function(parent_id, child_id, callback) {
+      var query = {"_id": parent_id}; 
+      var update = { $push: { children: child_id}};
+      Node.findOneAndUpdate(query, update, callback);
     };
 }
 

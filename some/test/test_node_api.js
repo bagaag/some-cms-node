@@ -9,6 +9,7 @@ var client = scopedClient.create(cfg.http.hostname)
               .header('Content-Type','application/json');
 var db = require('../lib/db');
 var results = {}; // stored results for comparison between API and web service
+var Node = db.model('Node');
 
 function new_id(s) {
   return new mongoose.Types.ObjectId(s);
@@ -50,20 +51,17 @@ suite('Node API:', function() {
                 should.exist(node.children.length, 'children is an array');
                 should.exist(node.target_id, 'has field target_id');
                 should.exist(node.target_type, 'has field target_type');
-                if (node.children.length>0) results.node_with_children = node;
             }
-            should.exist(results.node_with_children, 'at least one root node with children');
             done();
         });
     });
 
-    test('#list() children', function(done) {
-      var children = results.node_with_children.children;
-      nodeAPI.list({_id:children}, function(err, nodes) {
+    test('#list([ids])', function(done) {
+      nodeAPI.list({_id:[results.created.get('id')]}, function(err, nodes) {
           if (err) throw err;
           results.children = nodes;
           assert(nodes.length>0, 'returned >0 nodes');
-          assert(nodes.length==children.length, 'expected number of children');
+          assert(nodes.length==1, 'expected number of children');
           for (var i=0; i<nodes.length; i++) {
               var node = nodes[i];
               should.exist(node._id, 'has field _id');
@@ -145,6 +143,34 @@ suite('Node API:', function() {
           if (err) throw err;
           assert.ok(updated.get('title')===node.get('title'), 'Update persisted');
           done();
+        });
+      });
+    });
+
+    // creates a child that specifies its parent, then 
+    // checks that it was added as a child, then deletes
+    // it and checks that it is removed after the child
+    // is destroyed
+    test("#create with parent_id and child cleanup on destroy", function(done) {
+      var parent_id = results.created.get('id');
+      var c = {'children': [new_id("510b2dd586381c018b803feb")],
+               'label': 'child node', 
+               'target_id': new_id("510b2dd586381c018b803feb"),
+               'target_type': 'some_nodes', 
+               'parent_id': parent_id};
+      nodeAPI.create(c, function(err, child) {
+        if (err) throw err;
+        var q = { children: new_id(child.get('id')) };
+        Node.findOne(q, function(err, par) {
+          if (err) throw err;
+          assert.ok(par.get('id')==parent_id, 'child associated with paren');
+          nodeAPI.destroy(child.get('id'), function(err) {
+            if (err) throw err;
+            Node.count(q, function(err, result) {
+              assert.ok(result==0, 'child ID not found in children after destruction');
+              done();
+            });
+          });
         });
       });
     });
