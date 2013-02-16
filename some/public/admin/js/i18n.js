@@ -7,6 +7,7 @@ Some.module("i18n", function(){
     'en_us': {
       'contenttree_menu_new': 'New',
       'contenttree_menu_page': 'Page',
+      'contenttree_new_page_title': 'New Page',
       'editor_saved': "Success!",
       'editor_lbl_save': 'Save',
       'editor_err_head': "Ruh-roh.",

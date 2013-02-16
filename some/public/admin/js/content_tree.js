@@ -33,6 +33,7 @@ Some.module("ContentTree", function(){
     draw_tree: function() {
       var self = this;
       var $selector = $("#content_tree_control");
+      self.$selector = $selector;
       $selector
         // event on load
         .bind("loaded.jstree", function(event,data) {
@@ -41,6 +42,7 @@ Some.module("ContentTree", function(){
         // navigate to edit
         .bind("select_node.jstree", function(event, data) {
           var node = $selector.jstree("get_selected");
+          self.selected_node = node;
           Some.Dashboard.Router.navigate("#/edit/"+node.attr('target_id'),true);
         })
         // configure the tree control
@@ -69,14 +71,45 @@ Some.module("ContentTree", function(){
           },
           ui: {
             select_limit: 1
-          }
-        });
-    },
+          } 
+        }); 
+    }, 
     new_page: function() { 
-      alert('hey now'); 
-      //return false;
+      var self = this;
+      var pdata = { title: $.i18n._('contenttree_new_page_title') };
+      if (typeof this.selected_node != 'undefined') {
+        pdata.parent = this.selected_node.attr('_id');
+      }
+      Some.ContentTree.Controller.new_page(pdata, this.error, function() {
+        self.$selector.jstree("refresh", self.selected_node);
+      });
+    }, 
+    error: function(s) {
+      alert(s);
     }
   });
 
+  // Define controller class
+  this.ControllerClass = Marionette.Controller.extend({
+    // add a new page
+    new_page: function(data, error, success) {
+      var page = new Some.Pages.Model(data);
+      var valid = page.save(null, {
+        'error': function(model, xhr, options){ 
+          // why is error called when status is 201??
+          if (xhr.status==201) success();
+          else error(xhr.status + ': ' + xhr.responseText);
+        },
+        'success': function() { 
+          success();
+        }
+      });
+      if (!valid) error('Unexpected invalid result');
+    }
+  });
+
+  Some.addInitializer(function(options) {
+    Some.ContentTree.Controller = new Some.ContentTree.ControllerClass();
+  });
 });
 
