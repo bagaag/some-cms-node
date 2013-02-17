@@ -2,6 +2,8 @@ var Some = Some || new Backbone.Marionette.Application();
 
 Some.module("ContentTree", function(){
 
+  this.selector = "#content_tree_control";
+
   // menu above the tree control
   this.View = Backbone.Marionette.ItemView.extend({
     template: "sidebar-content-tree",
@@ -21,6 +23,7 @@ Some.module("ContentTree", function(){
       var a = [];
       for (var i=0; i<nodes.length; i++) {
         var node = nodes[i];
+        node.id = node._id;
         a.push({
           data: node.label,
           attr: node,
@@ -32,8 +35,7 @@ Some.module("ContentTree", function(){
     // draw the tree (after render)
     draw_tree: function() {
       var self = this;
-      var $selector = $("#content_tree_control");
-      self.$selector = $selector;
+      var $selector = $(Some.ContentTree.selector);
       $selector
         // event on load
         .bind("loaded.jstree", function(event,data) {
@@ -81,7 +83,7 @@ Some.module("ContentTree", function(){
         pdata.parent = this.selected_node.attr('_id');
       }
       Some.ContentTree.Controller.new_page(pdata, this.error, function() {
-        self.$selector.jstree("refresh", self.selected_node);
+        Some.ContentTree.Controller.refresh();
       });
     }, 
     error: function(s) {
@@ -105,7 +107,13 @@ Some.module("ContentTree", function(){
         }
       });
       if (!valid) error('Unexpected invalid result');
+    },
+
+    refresh: function(id) {
+      if (!id) id=-1;
+      $(Some.ContentTree.selector).jstree("refresh", id);
     }
+
   });
 
   Some.addInitializer(function(options) {

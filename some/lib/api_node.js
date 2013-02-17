@@ -119,6 +119,13 @@ function NodeAPI(params) {
       var update = { $push: { children: child_id}};
       Node.findOneAndUpdate(query, update, callback);
     };
+
+    // Rename a node
+    this.update_label = function(target_id, label, callback) {
+      var query = {"target_id": target_id};
+      var update = { $set: { "label": label } };
+      Node.findOneAndUpdate(query, update, callback);
+    };
 }
 
 module.exports = NodeAPI;
