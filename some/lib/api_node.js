@@ -9,42 +9,39 @@ function NodeAPI(params) {
       Node.findById(id, callback);
     };
 
-    // List nodes - returns nodes matching array of _id vals, 
-    // or root nodes if no _id array is given
+    // List nodes - returns root nodes or children of specified parent_id
     this.list = function(opts, callback) {
       var query = {};
-      // convert opts._id array into _id $in query
-      if (opts && opts._id) {
-        if (typeof opts._id == 'string') opts._id = [ new db.Types.ObjectId(opts._id) ];
-        /* 
-        if (opts._id.length>0) {
-          // convert string IDs to ObjectIds
-          for (var i=0; i<opts._id.length; i++) {
-            if (typeof opts._id[i] == 'string') { 
-              opts._id[i] = new db.Types.ObjectId(opts._id[i]);
-            }
+      var handler = function(err, pnode) {
+        var children = pnode.children;
+        query = { _id : { $in : children } };
+        Node.find(query, function(err, nodes) {
+          // put the children into the correct order
+          for (var i=0; i<nodes.length; i++) {
+            var id = nodes[i]._id;
+            var ix = children.indexOf(id);
+            nodes[i].ix = ix;
           }
-        }
-        */
-        query._id = { "$in": opts._id };
+          nodes.sort(function(a,b) { return a>b; });
+          callback(err, nodes);
+        });
       }
-      // or get root if _id array not found
-      if (typeof opts == 'undefined' || typeof opts._id == 'undefined') {
+      if (opts && opts.parent_id) {
+        query._id = new db.Types.ObjectId(opts.parent_id);
+        Node.findById(query, handler);
+      } else {
         query.root = true;
+        Node.findOne(query, handler);
       }
-      Node.find(query, function(err, nodes) {
-        callback(err, nodes);
-      });
     };
 
+      var getParent = Node.findById;
     // Set node properties
     this.update_from_obj = function(model, obj) {
       model.set('label', obj.label);
       model.set('children', obj.children);
       model.set('target_type', obj.target_type);
       model.set('target_id', obj.target_id);
-      if (!obj.parent_id) model.set('root', true);
-      else model.set('root', false);
     };
 
     // Create a node
@@ -77,8 +74,18 @@ function NodeAPI(params) {
                 callback(undefined, node);
               }
             });
-          } else {
-            callback(undefined, node);
+          }
+          // otherwise add to the root
+          else {
+            self.add_root(node.get('_id'), function(err) {
+              if (err) {
+                // parent doesn't exist, undo the create
+                node.remove();
+                callback(new Error('Failed to create root relationship: ' + err.message));
+              } else {
+                callback(undefined, node);
+              }
+            });
           }
         }
       });
@@ -116,6 +123,13 @@ function NodeAPI(params) {
     // Create a relationship
     this.add_child = function(parent_id, child_id, callback) {
       var query = {"_id": parent_id}; 
+      var update = { $push: { children: child_id}};
+      Node.findOneAndUpdate(query, update, callback);
+    };
+
+    // Create a root relationship
+    this.add_root = function(child_id, callback) {
+      var query = {"root": true}; 
       var update = { $push: { children: child_id}};
       Node.findOneAndUpdate(query, update, callback);
     };

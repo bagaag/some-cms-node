@@ -9,8 +9,6 @@ function NodeController(params) {
   var nodeAPI = new NodeAPI(params);
 
   // REST router 
-  // TODO: turn REST router into a utility function
-
   this.rest = function(req, res) {
     utils.rest_handler(req, res, this);
   };

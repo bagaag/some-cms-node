@@ -15,6 +15,8 @@ function new_id(s) {
   return new mongoose.Types.ObjectId(s);
 }
 
+//TODO set root/non-root get, test sort order
+
 suite('Node API:', function() {
     var NodeAPI = require('../lib/api_node.js');
     var nodeAPI = new NodeAPI({'db':db});
@@ -36,7 +38,7 @@ suite('Node API:', function() {
       });
     });
     
-    test('#list() root', function(done) {
+    test('#list()', function(done) {
         nodeAPI.list({}, function(err, nodes) {
             if (err) throw err;
             assert(nodes.length>0, 'returned >0 nodes');
@@ -45,8 +47,6 @@ suite('Node API:', function() {
                 var node = nodes[i];
                 should.exist(node._id, 'has field _id');
                 should.exist(node.label, 'has field label');
-                should.exist(node.root, 'has field root');
-                assert.ok(node.root===true, 'root should be true');
                 should.exist(node.children, 'has field children');
                 should.exist(node.children.length, 'children is an array');
                 should.exist(node.target_id, 'has field target_id');
@@ -56,22 +56,12 @@ suite('Node API:', function() {
         });
     });
 
-    test('#list([ids])', function(done) {
-      nodeAPI.list({_id:[results.created.get('id')]}, function(err, nodes) {
+    //TODO test w/ expected return data
+    test('#list(parent_id)', function(done) {
+      nodeAPI.list({parent_id: results.created.get('id') }, function(err, nodes) {
           if (err) throw err;
           results.children = nodes;
-          assert(nodes.length>0, 'returned >0 nodes');
-          assert(nodes.length==1, 'expected number of children');
-          for (var i=0; i<nodes.length; i++) {
-              var node = nodes[i];
-              should.exist(node._id, 'has field _id');
-              should.exist(node.label, 'has field label');
-              should.exist(node.root, 'has field root');
-              should.exist(node.children, 'has field children');
-              should.exist(node.children.length, 'children is an array');
-              should.exist(node.target_id, 'has field target_id');
-              should.exist(node.target_type, 'has field target_type');
-          }
+          assert(nodes.length==0, 'returned >0 nodes');
           done();
       });
     });
@@ -87,30 +77,14 @@ suite('Node API:', function() {
         });
     });
 
-    test('GET /some/api/node/rest?_id=[single]', function(done) {
-        client.path('/some/api/node/rest?_id='+results.children[0]._id);
+    test('GET /some/api/node/rest/_id', function(done) {
+        client.path('/some/api/node/rest/'+results.created._id);
         client.get()(function(err, resp, body) {
             if (err) throw err;
             assert.equal(resp.statusCode,200, 'Status 200');
             var data = JSON.parse(body);
-            assert.equal(data.length,1, 'data.length == 1');
-            assert.deepEqual(JSON.stringify(data), JSON.stringify([results.children[0]]), 'web service matches first API result');
-            done();
-        });
-    });
-
-    test('GET /some/api/node/rest?_id=[array]', function(done) {
-        var _ids = '?xignore=0';
-        for (var i=0; i<results.children.length; i++) {
-          _ids = _ids + '&_id='+results.children[i]._id;
-        }
-        client.path('/some/api/node/rest'+_ids);
-        client.get()(function(err, resp, body) {
-            if (err) throw err;
-            assert.ok(resp.statusCode==200, 'Status 200');
-            var data = JSON.parse(body);
-            assert.ok(data.length==results.children.length, 'data.length matches API result');
-            assert.deepEqual(JSON.stringify(data), JSON.stringify(results.children), 'web service matches API result')
+            assert.ok(data._id==results.created._id,'id matches');
+            assert.ok(data.target_id==results.created.target_id,'target matches');
             done();
         });
     });
@@ -251,4 +225,5 @@ suite('Node API:', function() {
       });
     });
 });
+
 
