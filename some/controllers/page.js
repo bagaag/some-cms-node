@@ -41,7 +41,7 @@ function PageController(params) {
           res.send(201);
         }
         // create node
-        var node = { target_type: 'some_pages', target_id: page.get('_id'), label: page.get('title') };
+        var node = { target_type: 'some_pages', target_id: page._id, label: page.title, children:[] };
         if (typeof data.parent == 'undefined') node.root = true;
         else node.parent_id = data.parent;
         nodeAPI.create(node, function(err, page) {

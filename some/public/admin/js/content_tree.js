@@ -23,16 +23,19 @@ Some.module("ContentTree", function(){
       var a = [];
       for (var i=0; i<nodes.length; i++) {
         var node = nodes[i];
-        node.id = node._id;
         a.push({
           data: node.label,
-          attr: node,
+          attr: { 
+            id: node._id,
+            target_id: node.target_id,
+            target_type: node.target_type
+          },
           state: 'closed'
         });
       }
       return a;
     },
-    // draw the tree (after render)
+    // draw the tree (must be called after page render)
     draw_tree: function() {
       var self = this;
       var $selector = $(Some.ContentTree.selector);
@@ -59,7 +62,7 @@ Some.module("ContentTree", function(){
               data: function(node) {
                 var id = '';
                 if (node!=-1) {
-                 return { _id: node.attr('children').split(',')}; 
+                 return { parent_id: node.attr('id')}; 
                 }
               },
               success: function(data) {
@@ -80,7 +83,7 @@ Some.module("ContentTree", function(){
       var self = this;
       var pdata = { title: $.i18n._('contenttree_new_page_title') };
       if (typeof this.selected_node != 'undefined') {
-        pdata.parent = this.selected_node.attr('_id');
+        pdata.parent = this.selected_node.attr('id');
       }
       Some.ContentTree.Controller.new_page(pdata, this.error, function() {
         Some.ContentTree.Controller.refresh();
