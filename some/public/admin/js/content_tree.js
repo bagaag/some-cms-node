@@ -8,11 +8,13 @@ Some.module("ContentTree", function(){
   this.View = Backbone.Marionette.ItemView.extend({
     template: "sidebar-content-tree",
     events: {
-      'click #contenttree_menu_new_page': 'new_page'
+      'click #contenttree_menu_new_page': 'new_page',
+      'click #contenttree_menu_delete': 'remove_node'
     },
     templateHelpers: Some.i18n.templateHelpers([
       'contenttree_menu_new', 
-      'contenttree_menu_page'
+      'contenttree_menu_page',
+      'contenttree_menu_delete'
     ]),
     // called after rendering
     onDomRefresh: function() {
@@ -81,6 +83,7 @@ Some.module("ContentTree", function(){
     }, 
     new_page: function() { 
       var self = this;
+      // default name for new pages is set in i18n
       var pdata = { title: $.i18n._('contenttree_new_page_title') };
       if (typeof this.selected_node != 'undefined') {
         pdata.parent = this.selected_node.attr('id');
@@ -88,7 +91,24 @@ Some.module("ContentTree", function(){
       Some.ContentTree.Controller.new_page(pdata, this.error, function() {
         Some.ContentTree.Controller.refresh();
       });
-    }, 
+    },
+    remove_node: function() {
+      var self = this;
+      $(".confirm_modal").confirmModal({
+        "heading" : $.i18n._('contenttree_remove_confirm_head'),
+        "body" : $.i18n._('contenttree_remove_confirm_body'),
+        "callback" : function() {
+          if (typeof self.selected_node != 'undefined') {
+            Some.ContentTree.Controller.delete_node(
+                self.selected_node.attr('target_id'),
+                self.selected_node.attr('target_type'),
+                function(msg) { self.error(msg); },
+                function() { /*success noop*/ }
+              );
+          }
+        }
+      });
+    },
     error: function(s) {
       alert(s);
     }
@@ -115,6 +135,18 @@ Some.module("ContentTree", function(){
     refresh: function(id) {
       if (!id) id=-1;
       $(Some.ContentTree.selector).jstree("refresh", id);
+    },
+
+    delete_node: function(id, type, error, callback) { 
+      if (type=='some_pages') {
+        var page = new Some.Pages.Model({_id: id});
+        page.destroy({
+          'error' : error,
+          'success' : callback
+        });
+      } else {
+        error('Type ' + type + ' is unhandled');
+      }
     }
 
   });

@@ -7,7 +7,10 @@ Some.module("i18n", function(){
     'en_us': {
       'contenttree_menu_new': 'New',
       'contenttree_menu_page': 'Page',
+      'contenttree_menu_delete': 'Delete',
       'contenttree_new_page_title': 'New Page',
+      'contenttree_remove_confirm_head': 'Confirm Delete',
+      'contenttree_remove_confirm_body': 'Are you sure you want to delete the selected content?',
       'editor_saved': "Success!",
       'editor_lbl_save': 'Save',
       'editor_err_head': "Ruh-roh.",
