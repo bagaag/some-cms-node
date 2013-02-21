@@ -1,7 +1,6 @@
-exports.setup = function(params) {
+exports.setup = function(app) {
 
-    var app = params.app;
-    var controllers = params.controllers;
+    var controllers = app.controllers;
     var api_root = '/some/api'; //TODO: /some path should be part of config
 
     app.get("/some", function(res, res) { 

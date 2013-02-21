@@ -1,8 +1,7 @@
-function NodeAPI(params) {
+function NodeAPI(app) {
 
     var self = this;
-    var db = params.db;
-    var Node = db.model('Node');
+    var Node = app.mongoose.model('Node');
 
     // Fetch node by ID
     this.get = function(id, callback) {
@@ -27,7 +26,7 @@ function NodeAPI(params) {
         });
       }
       if (opts && opts.parent_id) {
-        query._id = new db.Types.ObjectId(opts.parent_id);
+        query._id = new app.mongoose.Types.ObjectId(opts.parent_id);
         Node.findById(query, handler);
       } else {
         query.root = true;

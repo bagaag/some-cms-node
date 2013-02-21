@@ -1,12 +1,10 @@
 require("url");
 
-function NodeController(params) {
+function NodeController(app) {
 
   var self = this;
-  var utils = params.utils;
-  var app = params.app;
-  var NodeAPI = require('../lib/api_node.js');
-  var nodeAPI = new NodeAPI(params);
+  var utils = app.some.utils;
+  var nodeAPI = app.some.nodes;
 
   // REST router 
   this.rest = function(req, res) {

@@ -1,12 +1,9 @@
-function PageController(params) {
+function PageController(app) {
 
   var self = this;
-  var utils = params.utils;
-  var app = params.app;
-  var PageAPI = require('../lib/api_page.js');
-  var pageAPI = new PageAPI(params);
-  var NodeAPI = require('../lib/api_node.js');
-  var nodeAPI = new NodeAPI(params);
+  var utils = app.some.utils;
+  var nodeAPI = app.some.nodes;
+  var pageAPI = app.some.pages;
 
   // REST router 
   this.rest = function(req, res) {

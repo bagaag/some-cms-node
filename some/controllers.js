@@ -1,7 +1,7 @@
-function Controllers(params) {
+function Controllers(app) {
     
     var someutils = require('./lib/someutils');
-    params.utils = someutils;
+    app.some.utils = someutils;
 
     // define API controllers
     var controllers = {};
@@ -12,19 +12,19 @@ function Controllers(params) {
     };
     
     // add custom controllers
-    var custom_api_controllers = params.custom_api_controllers;
+    var custom_api_controllers = app.config.custom_api_controllers;
     for (var name in custom_api_controllers) {
         ControllerClasses[name] = custom_api_controllers[name];
     }
     
     // instantiate API controllers
     for (name in ControllerClasses) {
-        controllers[name] = new ControllerClasses[name](params);
+        controllers[name] = new ControllerClasses[name](app);
     }
     
     // front-end request controller
     var FrontController = require('./controllers/front');
-    var front_controller = new FrontController(params);
+    var front_controller = new FrontController(app);
 
     // direct /some/:section/:action to the approriate controller and method 
     this.route_api = function(req, res, next) {

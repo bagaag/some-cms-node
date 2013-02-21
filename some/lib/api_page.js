@@ -1,8 +1,7 @@
-function PageAPI(params) {
+function PageAPI(app) {
 
     var self = this;
-    var db = params.db;
-    var Page = db.model('Page');
+    var Page = app.mongoose.model('Page');
 
     // List pages 
     this.get = function(id, callback) {

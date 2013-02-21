@@ -1,5 +1,6 @@
-var config = require('../../config.js');
-var mongoose = require('mongoose');
-mongoose.connect(config.db.mongodb);
-require('./models')({'mongoose': mongoose});
-module.exports = mongoose;
+function DB(app) {
+  var mongoose = require('mongoose');
+  mongoose.connect(app.config.db.mongodb);
+  app.mongoose = mongoose;
+}
+module.exports = DB;
