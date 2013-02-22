@@ -1,8 +1,7 @@
 function Controllers(app) {
     
-    var someutils = require('./lib/someutils');
-    app.some.utils = someutils;
-
+    var utils = app.some.utils;
+    
     // define API controllers
     var controllers = {};
     var ControllerClasses = {
@@ -33,11 +32,11 @@ function Controllers(app) {
         if (!action) action = 'index';
         var controller = controllers[section];
         if (typeof controller == 'undefined') {
-            res.send(404, someutils.error("Unmapped API section '" + section + "'"));
+            res.send(404, utils.error("Unmapped API section '" + section + "'"));
             return;
         }
         if (typeof controller[action]=='undefined') {
-            res.send(404, someutils.error("Unmapped API action: '" + section + '/' + action + "'"));
+            res.send(404, utils.error("Unmapped API action: '" + section + '/' + action + "'"));
             return;
         } else {
             controller[action](req, res, next);

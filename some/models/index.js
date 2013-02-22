@@ -1,8 +1,8 @@
-
+// Populate models at app.some.model.NAME
 module.exports = function(app) {
   var models = [
-    './model_page.js', 
-    './model_node.js'
+    './model_node.js',
+    './model_page.js' 
   ];
   app.some.model = {};
   var l = models.length;

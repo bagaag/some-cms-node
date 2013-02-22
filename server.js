@@ -3,6 +3,8 @@ var config = require('./config.js');
 var express = require('express');
 var cons = require('consolidate');
 var app = module.exports = express();
+app.express = express;
+app.config = config;
 
 // middleware 
 app.use(express.bodyParser()); // parse form posts
@@ -18,8 +20,8 @@ app.set('view engine', 'html');
 app.use("views", __dirname + '/views');
 app.use("/static", express.static(__dirname + '/public'));
 
-// load up some CMS
-require('./some')({ 'express':express, 'app':app, 'config':config.some });
+// load up some CMS at app.some
+require('./some')(app);
 
 // an external route
 app.get('/', function (req, res) {

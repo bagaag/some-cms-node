@@ -1,15 +1,44 @@
 
 module.exports = function(app) {
 
+  // Schema definition
   var Schema = app.mongoose.Schema;
+  var node_collections = ['some_pages'];
   var NodeSchema = new Schema({
       root: { type: Boolean },
-      label: { type: String },
+      label: { type: String, required: true },
       children: [ { type: Schema.ObjectId } ],
-      target_id: { type: Schema.ObjectId },
-      target_type: { type: String }
+      target_id: { type: Schema.ObjectId, required: true },
+      target_type: { type: String, required: true, enum: node_collections }
   }, {"collection": "some_nodes"});
 
+  /*** STATIC METHODS ***/
+
+  // Get children of specified node (or root) 
+  NodeSchema.statics.children = function() {
+    var query = {};
+    var handler = function(err, pnode) {
+      var children = pnode.children;
+      query = { _id : { $in : children } };
+      Node.find(query, function(err, nodes) {
+        // put the children into the correct order
+        for (var i=0; i<nodes.length; i++) {
+          var id = nodes[i]._id;
+          var ix = children.indexOf(id);
+          nodes[i].ix = ix;
+        }
+        nodes.sort(function(a,b) { return a>b; });
+        callback(err, nodes);
+      });
+    }
+    if (opts && opts.parent_id) {
+      query._id = new app.mongoose.Types.ObjectId(opts.parent_id);
+      Node.findById(query, handler);
+    } else {
+      query.root = true;
+      Node.findOne(query, handler);
+    }
+  }
   // Create a relationship
   NodeSchema.statics.add_child = function(parent_id, child_id, callback) {
     var query = {"_id": parent_id}; 
@@ -36,6 +65,8 @@ module.exports = function(app) {
     var update = { $set: { "label": label } };
     app.some.model.Node.findOneAndUpdate(query, update, callback);
   }
+
+  /*** PLUGIN ***/
 
   // NodePlugin implements updating of node when a given type is updated
   NodeSchema.statics.NodePlugin = function(schema, options) {
@@ -64,6 +95,7 @@ module.exports = function(app) {
     });
   }
  
+  // Add to app.some namespace and register w/ Mongoose
   app.some.model.NodeSchema = NodeSchema;
   app.some.model.Node = app.mongoose.model("Node", NodeSchema);
 

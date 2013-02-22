@@ -4,6 +4,9 @@ function some(app) {
   // set an app pointer
   app.some = this;
 
+  // setup utils collection
+  app.some.utils = require('./lib/someutils');
+
   // mongoose connection can be pre-existing or not
   if (!app.mongoose) {
     // sets app.mongoose
@@ -11,19 +14,10 @@ function some(app) {
   }
 
   // schema setup
-  require('./lib/models')(app);
-
-  // API setup
-  var PageAPI = require('./lib/api_page.js');
-  app.some.pages = new PageAPI(app);
-  var NodeAPI = require('./lib/api_node.js');
-  app.some.nodes = new NodeAPI(app);
-
-  // middleware setup
-  require('./lib/middleware.js')(app);
+  require('./models')(app);
 
   // controllers setup
-  var Controllers = require('./controllers.js');
+  var Controllers = require('./controllers');
   app.controllers = new Controllers(app);
   
   // configure routes

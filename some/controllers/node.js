@@ -4,7 +4,7 @@ function NodeController(app) {
 
   var self = this;
   var utils = app.some.utils;
-  var nodeAPI = app.some.nodes;
+  var Node = app.some.model.Node;
 
   // REST router 
   this.rest = function(req, res) {
@@ -14,7 +14,7 @@ function NodeController(app) {
   // Get a single node 
   this.get = function(req, res) {
     var id = req.param('id');
-    nodeAPI.get(id, function(err, node) {
+    Node.findById(id, function(err, node) {
       if (err) res.send(500, err);
       else utils.format(app, res, node);
     });
@@ -22,7 +22,7 @@ function NodeController(app) {
 
   // List nodes 
   this.list = function(req, res) {
-    nodeAPI.list(req.query, function(err, nodes) {
+    Node.children(req.query, function(err, nodes) {
       if (err) res.send(500, err);
       else res.send(nodes);
     });
@@ -30,7 +30,8 @@ function NodeController(app) {
 
   // Create a node
   this.create = function(req, res) {
-    nodeAPI.create(req.body, function(err, node) {
+    var node = new Node(req.body);
+    node.save(function(err) {
       if (err) res.send(500, err);
       else {
         res.set('Location', (req.secure?'https':'http')+'://'+req.host+'/some/api/node/rest/'+node.id);
@@ -42,8 +43,8 @@ function NodeController(app) {
   // Update a node
   this.update = function(req, res) {
     var body = req.body;
-    body._id = req.param('id');
-    nodeAPI.update(req.body, function(err) {
+    var id = req.param('id');
+    Node.update({_id: id}, { $set: body }, function(err) {
       if (err) res.send(500, err);
       else res.send(204);
     });
@@ -51,7 +52,7 @@ function NodeController(app) {
 
   // Delete a node
   this.destroy = function(req, res) {
-    nodeAPI.destroy(req.param('id'), function(err) {
+    Node.remove({_id: req.param('id'), function(err) {
       if (err) res.send(500, err);
       else res.send(204);
     });
