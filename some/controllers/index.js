@@ -5,9 +5,9 @@ function Controllers(app) {
     // define API controllers
     var controllers = {};
     var ControllerClasses = {
-        'page': require('./controllers/page'),
-        'node': require('./controllers/node'),
-        'test': require('./controllers/test')
+        'page': require('./page'),
+        'node': require('./node'),
+        'test': require('./test')
     };
     
     // add custom controllers
@@ -22,7 +22,7 @@ function Controllers(app) {
     }
     
     // front-end request controller
-    var FrontController = require('./controllers/front');
+    var FrontController = require('./front');
     var front_controller = new FrontController(app);
 
     // direct /some/:section/:action to the approriate controller and method 

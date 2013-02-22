@@ -2,8 +2,8 @@ function PageController(app) {
 
   var self = this;
   var utils = app.some.utils;
-  var nodeAPI = app.some.nodes;
-  var pageAPI = app.some.pages;
+  var Node = app.some.model.Node;
+  var Page = app.some.model.Page;
 
   // REST router 
   this.rest = function(req, res) {
@@ -13,15 +13,16 @@ function PageController(app) {
   // Get a single page 
   this.get = function(req, res) {
     var id = req.param('id');
-    pageAPI.get(id, function(err, page) {
+    Page.findById(id, function(err, page) {
       if (err) res.send(500, err);
+      else if (page==null) res.send(404);
       else utils.format(app, res, page);
     });
   };
 
   // List pages 
   this.list = function(req, res) {
-    pageAPI.list(req.body, function(err, pages) {
+    Page.find(req.body, function(err, pages) {
       if (err) res.send(500, err);
       else res.send(pages);
     });
@@ -30,23 +31,12 @@ function PageController(app) {
   // Create a page
   this.create = function(req, res) {
     var data = req.body;
-    pageAPI.create(data, function(err, page) {
+    var page = new Page(data);
+    page.save(function(err) {
       if (err) res.send(500, err);
       else {
-        function finished() {
-          res.set('Location', (req.secure?'https':'http')+'://'+req.host+'/some/api/page/rest/'+page.id);
-          res.send(201);
-        }
-        // create node
-        var node = { target_type: 'some_pages', target_id: page._id, label: page.title, children:[] };
-        if (typeof data.parent == 'undefined') node.root = true;
-        else node.parent_id = data.parent;
-        nodeAPI.create(node, function(err, page) {
-          if (err) res.send(500, err);
-          else {
-            finished();
-          }
-        });
+        res.set('Location', (req.secure?'https':'http')+'://'+req.host+'/some/api/page/rest/'+page.id);
+        res.send(201);
       }
     });
   };
@@ -54,12 +44,15 @@ function PageController(app) {
   // Update a page
   this.update = function(req, res) {
     var body = req.body;
-    body._id = req.param('id');
-    pageAPI.update(req.body, function(err) {
+    var id = req.param('id');
+    Page.findById(id, function(err, page) {
       if (err) res.send(500, err);
+      else if (page==null) res.send(404);
       else {
-        nodeAPI.update_label(body._id, body.title, function(err, node) {
-          res.send(204);
+        page.set(body);
+        page.save(function(err) {
+          if (err) res.send(500, err);
+          else res.send(204);
         });
       }
     });
@@ -67,9 +60,15 @@ function PageController(app) {
 
   // Delete a page
   this.destroy = function(req, res) {
-    pageAPI.destroy(req.param('id'), function(err) {
+    var id = req.param('id');
+    Page.findById(id, function(err, page) {
       if (err) res.send(500, err);
-      else res.send(204);
+      else if (page==null) res.send(404);
+      else {
+        page.remove(function(err) {
+          res.send(204);
+        });
+      }
     });
   };
 

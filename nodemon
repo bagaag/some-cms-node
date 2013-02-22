@@ -1,1 +1,1 @@
-sudo nodemon server.js -w . -w some -w some/controllers -w some/lib
+sudo nodemon server.js -w . -w some -w some/controllers -w some/lib -w some/models

@@ -16,6 +16,7 @@ function NodeController(app) {
     var id = req.param('id');
     Node.findById(id, function(err, node) {
       if (err) res.send(500, err);
+      else if (node==null) res.send(404);
       else utils.format(app, res, node);
     });
   };
@@ -44,15 +45,22 @@ function NodeController(app) {
   this.update = function(req, res) {
     var body = req.body;
     var id = req.param('id');
-    Node.update({_id: id}, { $set: body }, function(err) {
+    Node.findById(id, function(err, node) {
       if (err) res.send(500, err);
-      else res.send(204);
+      else if (node==null) res.send(404);
+      else {
+        node.set(body);
+        node.save(function(err) {
+          if (err) res.send(500, err);
+          else res.send(204);
+        });
+      }
     });
   };
 
   // Delete a node
   this.destroy = function(req, res) {
-    Node.remove({_id: req.param('id'), function(err) {
+    Node.remove({_id: req.param('id')}, function(err) {
       if (err) res.send(500, err);
       else res.send(204);
     });

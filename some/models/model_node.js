@@ -15,8 +15,10 @@ module.exports = function(app) {
   /*** STATIC METHODS ***/
 
   // Get children of specified node (or root) 
-  NodeSchema.statics.children = function() {
+  NodeSchema.statics.children = function(opts, callback) {
+    var Node = app.some.model.Node;
     var query = {};
+    if (typeof opts == 'undefined') opts = {};
     var handler = function(err, pnode) {
       var children = pnode.children;
       query = { _id : { $in : children } };
@@ -31,7 +33,7 @@ module.exports = function(app) {
         callback(err, nodes);
       });
     }
-    if (opts && opts.parent_id) {
+    if (opts.parent_id) {
       query._id = new app.mongoose.Types.ObjectId(opts.parent_id);
       Node.findById(query, handler);
     } else {
@@ -55,6 +57,7 @@ module.exports = function(app) {
 
   // Remove a target from the tree 
   NodeSchema.statics.remove_target = function(target_id, callback) {
+    var Node = app.some.model.Node;
     Node.remove({target_id: target_id});
     Node.update({children: target_id}, {$pull: {children: target_id}});
   }
