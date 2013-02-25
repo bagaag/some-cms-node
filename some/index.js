@@ -27,5 +27,7 @@ function some(app) {
   // configure static folder
   app.use("/some", app.express.static(__dirname + '/public'));
 
+  // TODO: configure logging
+  //app.use("/some", function(req, res, next) { console.log(req.path); next(); });
 }
 module.exports = some;

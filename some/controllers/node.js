@@ -21,7 +21,7 @@ function NodeController(app) {
     });
   };
 
-  // List nodes 
+  // List nodes (parent_id specified in querystring, else root nodes)
   this.list = function(req, res) {
     Node.children(req.query, function(err, nodes) {
       if (err) res.send(500, err);
@@ -29,19 +29,7 @@ function NodeController(app) {
     });
   };
 
-  // Create a node
-  this.create = function(req, res) {
-    var node = new Node(req.body);
-    node.save(function(err) {
-      if (err) res.send(500, err);
-      else {
-        res.set('Location', (req.secure?'https':'http')+'://'+req.host+'/some/api/node/rest/'+node.id);
-        res.send(201);
-      }
-    });
-  };
-
-  // Update a node
+  // Update a node (label and children only)
   this.update = function(req, res) {
     var body = req.body;
     var id = req.param('id');
@@ -49,7 +37,8 @@ function NodeController(app) {
       if (err) res.send(500, err);
       else if (node==null) res.send(404);
       else {
-        node.set(body);
+        if (body.children) node.set({children: body.children});
+        if (body.label) node.set({label: body.label});
         node.save(function(err) {
           if (err) res.send(500, err);
           else res.send(204);
@@ -57,14 +46,7 @@ function NodeController(app) {
       }
     });
   };
-
-  // Delete a node
-  this.destroy = function(req, res) {
-    Node.remove({_id: req.param('id')}, function(err) {
-      if (err) res.send(500, err);
-      else res.send(204);
-    });
-  };
+  /* Create and destroy calls should happen through target interactions via NodePlugin */
 
 }
 

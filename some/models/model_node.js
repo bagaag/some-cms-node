@@ -1,15 +1,15 @@
-
+ 
 module.exports = function(app) {
 
   // Schema definition
   var Schema = app.mongoose.Schema;
-  var node_collections = ['some_pages'];
+  //TODO: return validations after resolving special root node requirement
   var NodeSchema = new Schema({
       root: { type: Boolean },
-      label: { type: String, required: true },
+      label: { type: String },
       children: [ { type: Schema.ObjectId } ],
-      target_id: { type: Schema.ObjectId, required: true },
-      target_type: { type: String, required: true, enum: node_collections }
+      target_id: { type: Schema.ObjectId },
+      target_type: { type: String }
   }, {"collection": "some_nodes"});
 
   /*** STATIC METHODS ***/
@@ -41,18 +41,25 @@ module.exports = function(app) {
       Node.findOne(query, handler);
     }
   }
-  // Create a relationship
+  // Create a new node and relationship to specified parent
   NodeSchema.statics.add_child = function(parent_id, child_id, callback) {
     var query = {"_id": parent_id}; 
-    var update = { $push: { children: child_id}};
+    var update = { $push: { children: child_id }};
     app.some.model.Node.findOneAndUpdate(query, update, callback);
   }
 
   // Create a root relationship
   NodeSchema.statics.add_root = function(child_id, callback) {
     var query = {"root": true}; 
-    var update = { $push: { children: child_id}};
-    app.some.model.Node.findOneAndUpdate(query, update, callback);
+    var update = {$push: { children: child_id }};
+    app.some.model.Node.findOne(query, function(err, node) {
+      if (err) throw err;
+      node.children.push(child_id);
+      node.save(function(err) {
+        if (err) throw err;
+        if (typeof callback=='function') callback();
+      });
+    });
   }
 
   // Remove a target from the tree 
@@ -80,14 +87,22 @@ module.exports = function(app) {
       next();
     });
     // update add new target or update title on save
+    // TODO: these 'next' callbacks don't do anything w/ errors passed in
     schema.post('save', function(next) {
       if (this._wasnew) {
         // create node
-        if (this._parent_node_id) {
-          Node.add_child(this._parent_node_id, this._id, next);
-        } else {
-          Node.add_root(this._id, next);
-        }
+        var node = new Node();
+        node.target_type = this.collection.name;
+        node.target_id = this._id;
+        node.label = this.get(options.label);
+        node.save(function(err) {
+          if (err) throw err; // TODO: work out error handling
+          if (this._parent_node_id) {
+            Node.add_child(this._parent_node_id, node._id, next);
+          } else {
+            Node.add_root(node._id, next);
+          }
+        });
       } else {
         Node.update_label(this._id, this.get(options.label), next);
       }

@@ -2,7 +2,7 @@ var assert = require("assert");
 var FrontController = require("../controllers/front.js");
 var db = require('../lib/db');
 
-suite('controllers/front.js [from test_front.js]', function() {
+suite('controllers/front.js', function() {
     
     // failure for this test is timeout
     test('request.locals passthrough', function(done) {

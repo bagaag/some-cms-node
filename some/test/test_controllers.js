@@ -1,5 +1,4 @@
 var assert = require("assert");
-var db = require('../lib/db');
 
 suite('controllers.js', function() {
     var controllers;
@@ -9,20 +8,22 @@ suite('controllers.js', function() {
             res.send({'say':'Hello.'});
         };        
     }
+
+    var app = {some:{}};
+    app.some.utils = require('../lib/someutils.js');
+    app.config = require('../../config.js');
+    require('../lib/db')(app);
+    require('../models')(app);
     
     test('instantiation', function(done) {
-        var params = {
-            'custom_api_controllers': {
-                'custom1':CustomController
-            }, 
-            'db': db
-        };
-        var Controllers = require('../controllers.js');
-        controllers = new Controllers(params);
+        app.config.custom_api_controllers = {'custom1':CustomController};
+
+        var Controllers = require('../controllers');
+        controllers = new Controllers(app);
         assert.ok(typeof controllers == 'object', 'controllers is an object');
         done();
     });
-    
+
     test('#route_api()', function(done) {
         var req = {'params':{'section':'test', 'action':'test'}}, res = {};
         res.send = function(s) {
@@ -31,7 +32,7 @@ suite('controllers.js', function() {
         }
         controllers.route_api(req, res);
     });
-    
+
     test('custom_api_controllers', function(done) {
         var req = {'params':{'section':'custom1', 'action':'hello'}}, res = {};
         res.send = function(obj) {            
