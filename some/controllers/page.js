@@ -32,6 +32,7 @@ function PageController(app) {
   this.create = function(req, res) {
     var data = req.body;
     var page = new Page(data);
+    if (data._parent_node_id) page._parent_node_id = data._parent_node_id;
     page.save(function(err) {
       if (err) res.send(500, err);
       else {

@@ -44,8 +44,15 @@ module.exports = function(app) {
   // Create a new node and relationship to specified parent
   NodeSchema.statics.add_child = function(parent_id, child_id, callback) {
     var query = {"_id": parent_id}; 
-    var update = { $push: { children: child_id }};
-    app.some.model.Node.findOneAndUpdate(query, update, callback);
+    var update = {$push: { children: child_id }};
+    app.some.model.Node.findOne(query, function(err, node) {
+      if (err) throw err;
+      node.children.push(child_id);
+      node.save(function(err) {
+        if (err) throw err;
+        if (typeof callback=='function') callback();
+      });
+    });
   }
 
   // Create a root relationship
@@ -95,10 +102,11 @@ module.exports = function(app) {
         node.target_type = this.collection.name;
         node.target_id = this._id;
         node.label = this.get(options.label);
+        var parent_id = this._parent_node_id;
         node.save(function(err) {
           if (err) throw err; // TODO: work out error handling
-          if (this._parent_node_id) {
-            Node.add_child(this._parent_node_id, node._id, next);
+          if (typeof parent_id != 'undefined') {
+            Node.add_child(parent_id, node._id, next);
           } else {
             Node.add_root(node._id, next);
           }

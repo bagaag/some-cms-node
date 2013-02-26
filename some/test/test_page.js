@@ -98,7 +98,7 @@ suite('Page API:', function() {
   test('POST /some/api/page/rest (subpages)', function(done) {
     client.path('/some/api/page/rest');
     // create subpage 2
-    page2.parent_id = results.page1_node._id;
+    page2._parent_node_id = results.page1_node._id;
     client.post(JSON.stringify(page2))(function(err, resp, body) {
       if (err) throw err;
       assert.ok(resp.statusCode==201, 'Status 201 page2');
