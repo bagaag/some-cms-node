@@ -37,7 +37,6 @@ function NodeController(app) {
       if (err) res.send(500, err);
       else if (node==null) res.send(404);
       else {
-        if (body.children) node.set({children: body.children});
         if (body.label) node.set({label: body.label});
         node.save(function(err) {
           if (err) res.send(500, err);
@@ -46,7 +45,17 @@ function NodeController(app) {
       }
     });
   };
-  /* Create and destroy calls should happen through target interactions via NodePlugin */
+
+  // Reorder child nodes
+  // ?parent_id=123 / order:[3,2,1,0]
+  this.reorder = function(req, res) {
+    var pid = req.query.parent_id || null;
+    var order = req.body.order;
+    Node.reorder_children(pid, order, function(err) {
+      if (err) res.send(500, err);
+      else res.send(204);
+    });
+  };
 
 }
 

@@ -13,9 +13,10 @@ suite('Node API:', function() {
   function validate_node(data) {
     should.exist(data._id, 'result has ._id');
     should.exist(data.label, 'result has .label');
-    should.exist(data.children, 'result has .children');
+    should.ok(data.parent_id==null || data.parent_id, 'result has .parent_id');
     should.exist(data.target_id, 'result has .target_id');
     should.exist(data.target_type, 'result has .target_type');
+    should.exist(data.order, 'result has .order');
   }
 
   // get root nodes

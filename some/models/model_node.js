@@ -1,15 +1,19 @@
  
 module.exports = function(app) {
 
+  var utils = app.some.utils;
+
   // Schema definition
   var Schema = app.mongoose.Schema;
   //TODO: return validations after resolving special root node requirement
+  var collections = ['some_pages'];
   var NodeSchema = new Schema({
-      root: { type: Boolean },
-      label: { type: String },
-      children: [ { type: Schema.ObjectId } ],
-      target_id: { type: Schema.ObjectId },
-      target_type: { type: String }
+      label: { type: String, required: true },
+      target_id: { type: Schema.Types.ObjectId, required: true },
+      target_type: { type: String, required: true, enum: collections  },
+      parent_id: { type: Schema.Types.ObjectId },
+      order: { type: Schema.Types.Mixed, required: true, default: 0 }
+
   }, {"collection": "some_nodes"});
 
   /*** STATIC METHODS ***/
@@ -19,53 +23,13 @@ module.exports = function(app) {
     var Node = app.some.model.Node;
     var query = {};
     if (typeof opts == 'undefined') opts = {};
-    var handler = function(err, pnode) {
-      var children = pnode.children;
-      query = { _id : { $in : children } };
-      Node.find(query, function(err, nodes) {
-        // put the children into the correct order
-        for (var i=0; i<nodes.length; i++) {
-          var id = nodes[i]._id;
-          var ix = children.indexOf(id);
-          nodes[i].ix = ix;
-        }
-        nodes.sort(function(a,b) { return a>b; });
-        callback(err, nodes);
-      });
-    }
     if (opts.parent_id) {
-      query._id = new app.mongoose.Types.ObjectId(opts.parent_id);
-      Node.findById(query, handler);
+      query.parent_id = new Schema.Types.ObjectId(opts.parent_id);
     } else {
-      query.root = true;
-      Node.findOne(query, handler);
+      query.parent_id = null;
     }
-  }
-  // Create a new node and relationship to specified parent
-  NodeSchema.statics.add_child = function(parent_id, child_id, callback) {
-    var query = {"_id": parent_id}; 
-    var update = {$push: { children: child_id }};
-    app.some.model.Node.findOne(query, function(err, node) {
-      if (err) throw err;
-      node.children.push(child_id);
-      node.save(function(err) {
-        if (err) throw err;
-        if (typeof callback=='function') callback();
-      });
-    });
-  }
-
-  // Create a root relationship
-  NodeSchema.statics.add_root = function(child_id, callback) {
-    var query = {"root": true}; 
-    var update = {$push: { children: child_id }};
-    app.some.model.Node.findOne(query, function(err, node) {
-      if (err) throw err;
-      node.children.push(child_id);
-      node.save(function(err) {
-        if (err) throw err;
-        if (typeof callback=='function') callback();
-      });
+    Node.find(query).sort('order').exec(function(err, nodes) {
+      callback(err, nodes);
     });
   }
 
@@ -73,7 +37,6 @@ module.exports = function(app) {
   NodeSchema.statics.remove_target = function(target_id, callback) {
     var Node = app.some.model.Node;
     Node.remove({target_id: target_id});
-    Node.update({children: target_id}, {$pull: {children: target_id}});
   }
 
   // Rename a node
@@ -81,6 +44,22 @@ module.exports = function(app) {
     var query = {"target_id": target_id};
     var update = { $set: { "label": label } };
     app.some.model.Node.findOneAndUpdate(query, update, callback);
+  }
+
+  // Reorder child nodes
+  NodeSchema.statics.reorder_children = function(parent_id, order, callback) {
+    Node.find({"parent_id": parent_id}).sort('order').exec(function(err, nodes) {
+      var len = orders.length;
+      if (len!=nodes.length) callback(409, 'Length mismatch');
+      else {
+        var parallel = new utils.Parallel(len, callback);
+        for (var i=0; i<len; i++) {
+          var node = nodes[i];
+          node.order = orders[i];
+          node.save(parallel.done);
+        }
+      }
+    });
   }
 
   /*** PLUGIN ***/
@@ -93,26 +72,26 @@ module.exports = function(app) {
       this._wasnew = this.isNew;
       next();
     });
+
     // update add new target or update title on save
-    // TODO: these 'next' callbacks don't do anything w/ errors passed in
-    schema.post('save', function(next) {
+    //TODO: with no callback, seems like the request may end before this completes 
+    schema.post('save', function(obj) {
       if (this._wasnew) {
         // create node
         var node = new Node();
-        node.target_type = this.collection.name;
-        node.target_id = this._id;
-        node.label = this.get(options.label);
-        var parent_id = this._parent_node_id;
+        node.target_type = obj.collection.name;
+        node.target_id = obj._id;
+        node.label = obj.get(options.label);
+        if (obj._parent_node_id) {
+          node.parent_id = new Schema.Types.ObjectId(obj._parent_node_id);
+        } else {
+          node.parent_id = null;
+        }
         node.save(function(err) {
-          if (err) throw err; // TODO: work out error handling
-          if (typeof parent_id != 'undefined') {
-            Node.add_child(parent_id, node._id, next);
-          } else {
-            Node.add_root(node._id, next);
-          }
+          if (err) throw err;
         });
       } else {
-        Node.update_label(this._id, this.get(options.label), next);
+        Node.update_label(obj._id, obj.get(options.label), next);
       }
     });
     // remove from tree

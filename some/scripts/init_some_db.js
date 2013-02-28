@@ -4,7 +4,8 @@ db.some_nodes.remove();
 
 // create indexes
 db.some_nodes.ensureIndex({ "target_id": 1 }, { unique: true });
-db.some_nodes.ensureIndex({ "children": 1 });
+db.some_nodes.ensureIndex({ "parent_id": 1 });
+db.some_nodes.ensureIndex({ "order": 1 });
 
 // initial page content
 var page = { 
@@ -19,13 +20,7 @@ var page_node = {
   "label" : page.title,
   "target_type" : "some_pages",
   "target_id" : page._id,
-  "children" : []
+  "parent_id" : null,
+  "order" : 0
 };
 db.some_nodes.insert(page_node);
-page_node = db.some_nodes.findOne();
-
-var root = {
-  "root" : true,
-  "children" : [ page_node._id ]
-};
-db.some_nodes.insert(root);

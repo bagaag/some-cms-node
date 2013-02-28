@@ -2,7 +2,6 @@ function PageController(app) {
 
   var self = this;
   var utils = app.some.utils;
-  var Node = app.some.model.Node;
   var Page = app.some.model.Page;
 
   // REST router 

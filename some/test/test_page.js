@@ -107,7 +107,7 @@ suite('Page API:', function() {
       results.page2_id = get_url_id(results.page2_location);
 
       // create subpage 3
-      page2.parent_id = results.page1_node._id;
+      page3._parent_node_id = results.page1_node._id;
       client.post(JSON.stringify(page3))(function(err, resp, body) {
         if (err) throw err;
         assert.ok(resp.statusCode==201, 'Status 201 page3');
@@ -120,14 +120,16 @@ suite('Page API:', function() {
         client.query({'parent_id': results.page1_node._id});
         client.get()(function(err, resp, body) {
           if (err) throw err;
+          client.query({'parent_id':undefined});
           assert.ok(resp.statusCode==200, 'Status 200 getting subnodes');
           var data = JSON.parse(body);
           
           // test for page2 node
           var node2 = data[0];
           should.exist(node2, 'first subnode exists');
+
           assert.ok(node2.label == page2.title 
-              && results.page2_id == node2._id, 
+              && results.page2_id == node2.target_id, 
               'first subnode properties match');
           results.page2_node = node2;
 
@@ -135,11 +137,9 @@ suite('Page API:', function() {
           var node3 = data[1];
           should.exist(node3, 'second subnode exists');
           assert.ok(node3.label == page3.title 
-              && results.page3_id == node3._id, 
+              && results.page3_id == node3.target_id, 
               'second subnode properties match');
           results.page3_node = node3;
-
-          client.query({});
           done();
         })
       });
@@ -164,16 +164,16 @@ suite('Page API:', function() {
         assert.ok(data.title == results.page1.title, 'new name persisted in page');
 
         // get the updated root nodes
+        client.query({});
         client.path('/some/api/node/rest');
         client.get()(function(err, resp, body) {
           if (err) throw err;
           assert.ok(resp.statusCode==200, 'Status 200');
           var data = JSON.parse(body);
           var node = data[results.page1_node_ix];
-          should.exist(node, 'root node exists at correct index');
+          should.exist(node, 'a node exists at expected index');
           assert.ok(node._id == results.page1_node._id, 'root node found at correct index');
           assert.ok(node.label == page1.title, 'node label updated');
-      
           done();
         });
       });
