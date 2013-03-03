@@ -21,6 +21,6 @@ var page_node = {
   "target_type" : "some_pages",
   "target_id" : page._id,
   "parent_id" : null,
-  "order" : 0
+  "order" : 1
 };
 db.some_nodes.insert(page_node);

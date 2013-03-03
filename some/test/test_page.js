@@ -121,7 +121,7 @@ suite('Page API:', function() {
         client.get()(function(err, resp, body) {
           if (err) throw err;
           client.query({'parent_id':undefined});
-          assert.ok(resp.statusCode==200, 'Status 200 getting subnodes');
+          assert.ok(resp.statusCode==200, 'Status 200 getting subnodes got '+ resp.statusCode);
           var data = JSON.parse(body);
           
           // test for page2 node
@@ -182,13 +182,13 @@ suite('Page API:', function() {
 
   // 6. reorder subpages in tree
   test('PUT /some/api/node/rest/ID', function(done) {
-    results.page1.children = [results.page3_node._id, results.page2_node._id];
     
-    // put the node w/ reordered children
-    client.path('/some/api/node/rest/'+results.page1_node._id);
-    client.put(JSON.stringify(results.page1))(function(err, resp, body) {
+    // reverse order of children
+    var qs = {order:[2,1]};
+    client.path('/some/api/node/reorder/'+results.page1_node._id);
+    client.put(JSON.stringify(qs))(function(err, resp, body) {
       if (err) throw err;
-      assert.ok(resp.statusCode==204, 'Status 204 after node update');
+      assert.ok(resp.statusCode==204, 'Status 204 after node update, got '+resp.statusCode);
       
       // get the children to confirm 
       client.path('/some/api/node/rest');
@@ -202,15 +202,13 @@ suite('Page API:', function() {
         // test for page3 node
         var node3 = data[0];
         should.exist(node3, 'first subnode exists');
-        assert.ok(node3.label==page3.title 
-            && results.page3_id == node3._id, 
+        assert.ok(node3.label==page3.title, 
             'first subnode properties match');
 
         // test for page2 node
         var node2 = data[1];
         should.exist(node2, 'second subnode exists');
-        assert.ok(node2.label==page2.title 
-            && results.page2_id == node2._id, 
+        assert.ok(node2.label==page2.title, 
             'second subnode properties match');
 
         done();
@@ -229,12 +227,12 @@ suite('Page API:', function() {
   test('GET /some/api/page/destroy/ID', function(done) {
 
     // delete page3
-    client.path('/some/api/page/destroy/'+results.page3._id);
+    client.path('/some/api/page/destroy/'+results.page3_id);
     client.get()(function(err, resp, body) {
       if (err) throw err;
       assert.ok(resp.statusCode==204, 'Status 204 delete page3');
       // check that page is deleted
-      client.path('/some/api/page/rest/'+results.page3._id);
+      client.path('/some/api/page/rest/'+results.page3_id);
       client.get()(function(err, resp, body) {
         if (err) throw err;
         assert.ok(resp.statusCode==404, 'Status 404 page3');
@@ -245,29 +243,19 @@ suite('Page API:', function() {
           if (err) throw err;
           assert.ok(resp.statusCode==404, 'Status 404 page3_node');
 
-          // check that node child reference is pulled
-          client.path('/some/api/node/rest/'+results.page1_node._id);
+          // delete page2
+          client.path('/some/api/page/destroy/'+results.page2_id);
           client.get()(function(err, resp, body) {
             if (err) throw err;
-            assert.ok(resp.statusCode==200, 'Status 200 page1_node');
-            var data = JSON.parse(body);
-            assert.ok(data.children.length==1, 'page1 node has only 1 child');
-            assert.ok(data[0]._id == results.page2_node._id, 'page1 child points to page2');
+            assert.ok(resp.statusCode==204, 'Status 204 delete page2');
 
-            // delete page2
-            client.path('/some/api/page/destroy/'+results.page2._id);
+            // delete page1
+            client.path('/some/api/page/destroy/'+results.page1_id);
             client.get()(function(err, resp, body) {
               if (err) throw err;
-              assert.ok(resp.statusCode==204, 'Status 204 delete page2');
+              assert.ok(resp.statusCode==204, 'Status 204 delete page1');
 
-              // delete page1
-              client.path('/some/api/page/destroy/'+results.page1._id);
-              client.get()(function(err, resp, body) {
-                if (err) throw err;
-                assert.ok(resp.statusCode==204, 'Status 204 delete page1');
-
-                done();
-              });
+              done();
             });
           });
         });

@@ -5,6 +5,7 @@ module.exports = function(app) {
 
   // Schema definition
   var Schema = app.mongoose.Schema;
+  var ObjectId = app.mongoose.Types.ObjectId;
   //TODO: return validations after resolving special root node requirement
   var collections = ['some_pages'];
   var NodeSchema = new Schema({
@@ -12,7 +13,7 @@ module.exports = function(app) {
       target_id: { type: Schema.Types.ObjectId, required: true },
       target_type: { type: String, required: true, enum: collections  },
       parent_id: { type: Schema.Types.ObjectId },
-      order: { type: Schema.Types.Mixed, required: true, default: 0 }
+      order: { type: Schema.Types.Mixed, required: true, default: 1 }
 
   }, {"collection": "some_nodes"});
 
@@ -24,7 +25,7 @@ module.exports = function(app) {
     var query = {};
     if (typeof opts == 'undefined') opts = {};
     if (opts.parent_id) {
-      query.parent_id = new Schema.Types.ObjectId(opts.parent_id);
+      query.parent_id = new ObjectId(opts.parent_id);
     } else {
       query.parent_id = null;
     }
@@ -36,7 +37,9 @@ module.exports = function(app) {
   // Remove a target from the tree 
   NodeSchema.statics.remove_target = function(target_id, callback) {
     var Node = app.some.model.Node;
-    Node.remove({target_id: target_id});
+    Node.remove({"target_id": target_id}, function(err, node) {
+      callback();
+    });
   }
 
   // Rename a node
@@ -48,14 +51,16 @@ module.exports = function(app) {
 
   // Reorder child nodes
   NodeSchema.statics.reorder_children = function(parent_id, order, callback) {
-    Node.find({"parent_id": parent_id}).sort('order').exec(function(err, nodes) {
-      var len = orders.length;
+    var Node = app.some.model.Node;
+    var query = { "parent_id" : parent_id };
+    Node.find(query).sort('order').exec(function(err, nodes) {
+      var len = order.length;
       if (len!=nodes.length) callback(409, 'Length mismatch');
       else {
         var parallel = new utils.Parallel(len, callback);
         for (var i=0; i<len; i++) {
           var node = nodes[i];
-          node.order = orders[i];
+          node.order = order[i];
           node.save(parallel.done);
         }
       }
@@ -77,25 +82,31 @@ module.exports = function(app) {
     //TODO: with no callback, seems like the request may end before this completes 
     schema.post('save', function(obj) {
       if (this._wasnew) {
-        // create node
-        var node = new Node();
-        node.target_type = obj.collection.name;
-        node.target_id = obj._id;
-        node.label = obj.get(options.label);
-        if (obj._parent_node_id) {
-          node.parent_id = new Schema.Types.ObjectId(obj._parent_node_id);
-        } else {
-          node.parent_id = null;
-        }
-        node.save(function(err) {
+        if (typeof obj._parent_node_id==undefined) obj._parent_node_id=null;
+        // get order value
+        Node.count({ parent_id: obj._parent_node_id }, function(err, count) {
           if (err) throw err;
+          // create node
+          var node = new Node();
+          node.target_type = obj.collection.name;
+          node.target_id = obj._id;
+          node.label = obj.get(options.label);
+          node.order = count+1;
+          if (obj._parent_node_id) {
+            node.parent_id = new ObjectId(obj._parent_node_id);
+          } else {
+            node.parent_id = null;
+          }
+          node.save(function(err) {
+            if (err) throw err;
+          });
         });
       } else {
-        Node.update_label(obj._id, obj.get(options.label), next);
+        Node.update_label(obj._id, obj.get(options.label));
       }
     });
     // remove from tree
-    schema.post('remove', function(next) {
+    schema.pre('remove', function(next) {
       Node.remove_target(this._id, next);
     });
   }

@@ -49,7 +49,7 @@ function NodeController(app) {
   // Reorder child nodes
   // ?parent_id=123 / order:[3,2,1,0]
   this.reorder = function(req, res) {
-    var pid = req.query.parent_id || null;
+    var pid = req.param('id') || null;
     var order = req.body.order;
     Node.reorder_children(pid, order, function(err) {
       if (err) res.send(500, err);
