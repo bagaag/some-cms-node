@@ -10,7 +10,6 @@ Some.module("Pages", function(){
     defaults: {
       title: '',
       body: '',
-      'parent': undefined
     }
 
   });

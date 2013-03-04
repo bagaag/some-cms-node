@@ -8,9 +8,11 @@ Some.module("Nodes", function(){
     idAttribute: "_id",
 
     defaults: {
-      children: [],
+      label: '',
+      parent_id: null,
       target_id: '',
-      target_type: ''
+      target_type: '',
+      order: 0
     }
 
   });

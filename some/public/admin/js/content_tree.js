@@ -84,9 +84,9 @@ Some.module("ContentTree", function(){
     new_page: function() { 
       var self = this;
       // default name for new pages is set in i18n
-      var pdata = { title: $.i18n._('contenttree_new_page_title') };
+      var pdata = { title: $.i18n._('contenttree_new_page_title'), body: '' };
       if (typeof this.selected_node != 'undefined') {
-        pdata.parent = this.selected_node.attr('id');
+        pdata._parent_node_id = this.selected_node.attr('id');
       }
       Some.ContentTree.Controller.new_page(pdata, this.error, function() {
         Some.ContentTree.Controller.refresh();
@@ -103,7 +103,9 @@ Some.module("ContentTree", function(){
                 self.selected_node.attr('target_id'),
                 self.selected_node.attr('target_type'),
                 function(msg) { self.error(msg); },
-                function() { /*success noop*/ }
+                function() { 
+                  Some.ContentTree.Controller.refresh();
+                }
               );
           }
         }

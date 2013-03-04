@@ -5,7 +5,7 @@ module.exports = function(app) {
   var Schema = app.mongoose.Schema;
   var PageSchema = new Schema({
       title : { type: String, required: true },
-      body : { type: String, required: true }
+      body : { type: String, required: false }
   }, {"collection": "some_pages"});
 
   // Add node plugin
