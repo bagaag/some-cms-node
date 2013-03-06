@@ -57,6 +57,16 @@ function NodeController(app) {
     });
   };
 
+  // Get nodes that would be deleted
+  this.deletions = function(req, res) {
+    var pid = req.param('id');
+    try {
+      Node.deletions(pid, function(nodes) {
+        res.send(nodes)
+      });
+    } catch (e) { res.send(500, err); }
+  }
+
 }
 
 module.exports = NodeController;

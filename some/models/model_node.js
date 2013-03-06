@@ -19,6 +19,13 @@ module.exports = function(app) {
 
   /*** STATIC METHODS ***/
 
+  // target models register a self.remove(id, callback) function for use
+  // in recursive deletions
+  NodeSchema.statics.target_removers = {};
+  NodeSchema.statics.register_target_remover = function(collection, remove_func) {
+    NodeSchema.statics.target_removers[collection] = remove_func;
+  }
+
   // Get children of specified node (or root) 
   NodeSchema.statics.children = function(opts, callback) {
     var Node = app.some.model.Node;
@@ -34,10 +41,19 @@ module.exports = function(app) {
     });
   }
 
-  // Remove a target from the tree 
+  // Remove a node from the tree based on target_id
   NodeSchema.statics.remove_target = function(target_id, callback) {
     var Node = app.some.model.Node;
-    Node.remove({"target_id": target_id}, function(err, node) {
+    Node.findOne({"target_id": target_id}, function(err, node) {
+      if (err) callback(err);
+      Node.target_removers[node.target_type](node.target_id, callback);
+    });
+  }
+
+  // Remove a node from the tree based _id
+  NodeSchema.statics.remove_node = function(id, callback) {
+    var Node = app.some.model.Node;
+    Node.remove({"_id": id}, function(err, node) {
       callback();
     });
   }
@@ -64,6 +80,37 @@ module.exports = function(app) {
           node.save(parallel.done);
         }
       }
+    });
+  }
+
+  // Get Recursive deletion consequences
+  NodeSchema.statics.deletions = function(target_id, callback) {
+    var Node = app.some.model.Node;
+    var query = { "target_id" : target_id };
+    var count = 0;
+    var ret = [];
+    var done = function() {
+      if (count==0) callback(ret);
+    }
+    var recurseChildren = function(node) {
+      ret.push(node);
+      var query = { "parent_id" : node._id };
+      count++;
+      Node.find(query, function(err, nodes) {
+        if (err) callback(err);
+        for (var i=0; i<nodes.length; i++) {
+          var n = nodes[i];
+          recurseChildren(n);
+        }
+        count--;
+        done();
+      });
+    };
+
+    Node.findOne(query, function(err, node) {
+      if (err) callback(err);
+      else if (node==null) callback(404);
+      else recurseChildren(node);
     });
   }
 
@@ -105,9 +152,20 @@ module.exports = function(app) {
         Node.update_label(obj._id, obj.get(options.label));
       }
     });
-    // remove from tree
+
+    // remove corresponding node and all descendants from tree
     schema.pre('remove', function(next) {
-      Node.remove_target(this._id, next);
+      Node.deletions(this._id, function(nodes) {
+        // setup parallel tracker for two calls per node (1 for node and 1 for target)
+        var parallel = new utils.Parallel(nodes.length*2, next);
+        for (var i=0; i<nodes.length; i++) {
+          var node = nodes[i];
+          // don't delete the target that triggered this call
+          if (node.target_id!=this._id) parallel.done();
+          else Node.remove_target(node.target_id, parallel.done);
+          Node.remove_node(node._id, parallel.done);
+        }
+      });
     });
   }
  

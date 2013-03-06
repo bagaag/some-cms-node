@@ -1,6 +1,7 @@
 var assert = require("assert");
 var should = require("should");
 var cfg = require("./config.js");
+var utils = require("../lib/someutils.js");
 var scopedClient = require("scoped-http-client");
 var client = scopedClient.create(cfg.http.hostname)
               .port(cfg.http.port)
@@ -226,39 +227,54 @@ suite('Page API:', function() {
   // 8. delete pages
   test('GET /some/api/page/destroy/ID', function(done) {
 
-    // delete page3
-    client.path('/some/api/page/destroy/'+results.page3_id);
+    // delete page1
+    client.path('/some/api/page/destroy/'+results.page1_id);
     client.get()(function(err, resp, body) {
       if (err) throw err;
-      assert.ok(resp.statusCode==204, 'Status 204 delete page3');
-      // check that page is deleted
+      assert.ok(resp.statusCode==204, 'Status 204 delete page1 got ' + resp.statusCode);
+
+      var parallel = new utils.Parallel(6, done);
+
+      // check that page1 is deleted
+      client.path('/some/api/page/rest/'+results.page1_id);
+      client.get()(function(err, resp, body) {
+        if (err) throw err;
+        assert.ok(resp.statusCode==404, 'Status 404 page1');
+      });
+
+      // check that node1 is deleted
+      client.path('/some/api/node/rest/'+results.page1_node._id);
+      client.get()(function(err, resp, body) {
+        if (err) throw err;
+        assert.ok(resp.statusCode==404, 'Status 404 page1_node');
+      });
+
+      // check that page2 is deleted
+      client.path('/some/api/page/rest/'+results.page2_id);
+      client.get()(function(err, resp, body) {
+        if (err) throw err;
+        assert.ok(resp.statusCode==404, 'Status 404 page2 got '+resp.statusCode);
+      });
+
+      // check that node2 is deleted
+      client.path('/some/api/node/rest/'+results.page2_node._id);
+      client.get()(function(err, resp, body) {
+        if (err) throw err;
+        assert.ok(resp.statusCode==404, 'Status 404 page2_node');
+      });
+
+      // check that page3 is deleted
       client.path('/some/api/page/rest/'+results.page3_id);
       client.get()(function(err, resp, body) {
         if (err) throw err;
         assert.ok(resp.statusCode==404, 'Status 404 page3');
+      });
 
-        // check that node is deleted
-        client.path('/some/api/node/rest/'+results.page3_node._id);
-        client.get()(function(err, resp, body) {
-          if (err) throw err;
-          assert.ok(resp.statusCode==404, 'Status 404 page3_node');
-
-          // delete page2
-          client.path('/some/api/page/destroy/'+results.page2_id);
-          client.get()(function(err, resp, body) {
-            if (err) throw err;
-            assert.ok(resp.statusCode==204, 'Status 204 delete page2');
-
-            // delete page1
-            client.path('/some/api/page/destroy/'+results.page1_id);
-            client.get()(function(err, resp, body) {
-              if (err) throw err;
-              assert.ok(resp.statusCode==204, 'Status 204 delete page1');
-
-              done();
-            });
-          });
-        });
+      // check that node3 is deleted
+      client.path('/some/api/node/rest/'+results.page3_node._id);
+      client.get()(function(err, resp, body) {
+        if (err) throw err;
+        assert.ok(resp.statusCode==404, 'Status 404 page3_node');
       });
     });
   });
