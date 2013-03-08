@@ -17,13 +17,9 @@ module.exports = function(app) {
 
   // Register remove func w/ Node model
   app.some.model.Node.register_target_remover('some_pages', function(id,callback) {
-    Page.findById(id, function(err, page) {
-      if (err) callback(err); 
-      else if (page!=null) {
-        page.remove(function(err) {
-          callback();
-        });
-      }
+    app.some.model.Page.remove({"_id": id}, function(err) {
+      if (err) callback(err);
+      else callback();
     });
   });
 };

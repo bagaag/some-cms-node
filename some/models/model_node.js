@@ -41,19 +41,10 @@ module.exports = function(app) {
     });
   }
 
-  // Remove a node from the tree based on target_id
-  NodeSchema.statics.remove_target = function(target_id, callback) {
-    var Node = app.some.model.Node;
-    Node.findOne({"target_id": target_id}, function(err, node) {
-      if (err) callback(err);
-      Node.target_removers[node.target_type](node.target_id, callback);
-    });
-  }
-
   // Remove a node from the tree based _id
   NodeSchema.statics.remove_node = function(id, callback) {
     var Node = app.some.model.Node;
-    Node.remove({"_id": id}, function(err, node) {
+    Node.remove({"_id": id}, function(err) {
       callback();
     });
   }
@@ -155,15 +146,24 @@ module.exports = function(app) {
 
     // remove corresponding node and all descendants from tree
     schema.pre('remove', function(next) {
-      Node.deletions(this._id, function(nodes) {
+      var id = this._id;
+      Node.deletions(id, function(nodes) {
         // setup parallel tracker for two calls per node (1 for node and 1 for target)
         var parallel = new utils.Parallel(nodes.length*2, next);
         for (var i=0; i<nodes.length; i++) {
           var node = nodes[i];
           // don't delete the target that triggered this call
-          if (node.target_id!=this._id) parallel.done();
-          else Node.remove_target(node.target_id, parallel.done);
-          Node.remove_node(node._id, parallel.done);
+          if (node.target_id==id) {
+            parallel.done();
+          }
+          else { 
+            Node.target_removers[node.target_type](node.target_id, function(err) {
+              parallel.done();
+            });
+          }
+          Node.remove_node(node._id, function(err) {
+            parallel.done();
+          });
         }
       });
     });
@@ -173,4 +173,4 @@ module.exports = function(app) {
   app.some.model.NodeSchema = NodeSchema;
   app.some.model.Node = app.mongoose.model("Node", NodeSchema);
 
-};
+}

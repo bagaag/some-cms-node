@@ -240,6 +240,7 @@ suite('Page API:', function() {
       client.get()(function(err, resp, body) {
         if (err) throw err;
         assert.ok(resp.statusCode==404, 'Status 404 page1');
+        parallel.done();
       });
 
       // check that node1 is deleted
@@ -247,6 +248,7 @@ suite('Page API:', function() {
       client.get()(function(err, resp, body) {
         if (err) throw err;
         assert.ok(resp.statusCode==404, 'Status 404 page1_node');
+        parallel.done();
       });
 
       // check that page2 is deleted
@@ -254,6 +256,7 @@ suite('Page API:', function() {
       client.get()(function(err, resp, body) {
         if (err) throw err;
         assert.ok(resp.statusCode==404, 'Status 404 page2 got '+resp.statusCode);
+        parallel.done();
       });
 
       // check that node2 is deleted
@@ -261,6 +264,7 @@ suite('Page API:', function() {
       client.get()(function(err, resp, body) {
         if (err) throw err;
         assert.ok(resp.statusCode==404, 'Status 404 page2_node');
+        parallel.done();
       });
 
       // check that page3 is deleted
@@ -268,6 +272,7 @@ suite('Page API:', function() {
       client.get()(function(err, resp, body) {
         if (err) throw err;
         assert.ok(resp.statusCode==404, 'Status 404 page3');
+        parallel.done();
       });
 
       // check that node3 is deleted
@@ -275,6 +280,7 @@ suite('Page API:', function() {
       client.get()(function(err, resp, body) {
         if (err) throw err;
         assert.ok(resp.statusCode==404, 'Status 404 page3_node');
+        parallel.done();
       });
     });
   });
