@@ -51,9 +51,17 @@ module.exports = function(app) {
 
   // Rename a node
   NodeSchema.statics.update_label = function(target_id, label, callback) {
+    if (!callback) callback = function() {};
     var query = {"target_id": target_id};
-    var update = { $set: { "label": label } };
-    app.some.model.Node.findOneAndUpdate(query, update, callback);
+    app.some.model.Node.findOne(query, function(err,node) {
+      if (err) callback(err);
+      else {
+        node.label = label;
+        node.save(function(err) {
+          callback(err);
+        });
+      }
+    });
   }
 
   // Reorder child nodes
