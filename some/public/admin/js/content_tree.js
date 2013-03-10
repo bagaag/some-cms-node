@@ -52,33 +52,52 @@ Some.module("ContentTree", function(){
           self.selected_node = node;
           Some.Dashboard.Router.navigate("#/edit/"+node.attr('target_id'),true);
         })
+        .bind("move_node.jstree", function(event, data) {
+          var source = data.rslt.o;
+          var parant = data.inst._get_parent(source);
+          // parant == -1 if dropped on root
+          console.log(source);
+          console.log(parant);
+        })
         // configure the tree control
         .jstree({
-          core: {},
-          plugins: [ "themes", "json_data", "ui" ],
-          json_data: {
-            ajax: {
-              url: function(node) {
+          "core": {},
+          "plugins": [ "themes", "json_data", "ui", "crrm", "dnd" ],
+          "json_data": {
+            "ajax": {
+              "url": function(node) {
                 return '/some/api/node/rest';
               },
-              data: function(node) {
+              "data": function(node) {
                 var id = '';
                 if (node!=-1) {
                  return { parent_id: node.attr('id')}; 
                 }
               },
-              success: function(data) {
+              "success": function(data) {
                 var ret = self.node_to_treenode(data);
                 return ret;
               }
             }
           },
-          themes: {
-            theme: 'default'
+          "crrm": {
+            "move": {
+              "check_move": function(data) {
+                return true;
+              }
+            }
           },
-          ui: {
-            select_limit: 1
-          } 
+          "dnd": {
+            "drag_target": false,
+            "drop_target": false,
+            "copy_modifier": false
+          },
+          "themes": {
+            "theme": 'default'
+          },
+          "ui": {
+            "select_limit": 1
+          },
         }); 
     }, 
     new_page: function() { 
